@@ -1,0 +1,258 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /home/jc2405.
+
+JobID: 29038125
+======
+Time: Sat May  9 03:14:01 BST 2026
+Running on master node: gpu-q-26
+Current directory: /home/jc2405
+
+Nodes allocated:
+================
+gpu-q-26
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+jaqmc solid train --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/hydrogen_chain.yml workflow.save_path=jaqmc/runs/h_chain_1.8
+
+I | 05-09 03:14:47 | runtime  | Initialize a local runtime.
+E | 05-09 03:16:26 |   jax    | Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 201, in _version_check
+    version = get_version()
+              ^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:85: operation cusparseGetProperty(MAJOR_VERSION, &major) failed: The cuSPARSE library was not found.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 487, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 370, in initialize
+    _check_cuda_versions(raise_on_first_error = True)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 266, in _check_cuda_versions
+    _version_check("cuSPARSE", cuda_versions.cusparse_get_version,
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 205, in _version_check
+    raise RuntimeError(err_msg) from e
+RuntimeError: Unable to load cuSPARSE. Is it installed?
+I | 05-09 03:16:26 |   jax    | Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+W | 05-09 03:16:26 |   jax    | An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+I | 05-09 03:16:35 |  config  | Resolved configurations:
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:18
+logging:
+  level: info
+  stream: stderr
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:63
+jax:
+  enable_x64: false
+  debug_infs: false
+  debug_nans: false
+  disable_jit: false
+  default_matmul_precision: float32
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:103
+distributed:
+  coordinator_address: null
+  num_processes: 1
+  process_id: 0
+  initialization_timeout: 300
+  wait_second_before_connect: 10.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py:42
+workflow:
+  seed: null
+  batch_size: 4096
+  save_path: jaqmc/runs/h_chain_1.8
+  restore_path: jaqmc/runs/h_chain_1.8
+  config:
+    ignore_extra: false
+    verbose: false
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/config/two_atom_chain.py:22
+system:
+  module: two_atom_chain
+  symbol: H
+  bond_length: 1.8
+  unit: bohr
+  supercell: 1
+  vacuum_separation: 100.0
+  spin: 0
+  basis: sto-3g
+  ecp: null
+  electron_init_width: 1.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/wavefunction.py:23
+wf:
+  module: jaqmc.app.solid.wavefunction
+  hidden_dims_single: [256, 256, 256, 256]
+  hidden_dims_double: [32, 32, 32, 32]
+  ndets: 16
+  distance_type: nu
+  envelope_type: abs_isotropic
+  sym_type: minimal
+  orbitals_spin_split: true
+  full_det: true
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/sampler/mcmc.py:57
+sampler:
+  steps: 10
+  initial_width: 0.1
+  adapt_frequency: 100
+  pmove_range: [0.5, 0.55]
+pretrain:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 2000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.optax:adam
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.0003
+      delay: 2000.0
+      decay: 1.0
+    b1: 0.9
+    b2: 0.999
+    eps: 1.0e-08
+    eps_root: 0.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: loss
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+train:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 200000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.kfac:KFACOptimizer
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.05
+      delay: 2000.0
+      decay: 1.0
+    norm_constraint: 0.001
+    curvature_ema: 0.95
+    l2_reg: 0.0
+    inverse_update_period: 1
+    damping: 0.001
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/loss_grad.py:24
+  grads:
+    vmap_chunk_size: null
+    loss_key: total_energy
+    clip_scale: 5.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: pmove:.2f,energy=total_energy:.4f,variance=total_energy_var:.4f
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+estimators:
+  energy:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/kinetic/euclidean.py:28
+    kinetic:
+      vmap_chunk_size: null
+      mode: forward_laplacian
+      sparsity_threshold: 0
+  enabled:
+    spin: false
+    density: false
+I | 05-09 03:16:35 |  config  | Current config is the same as that of previous run.
+I | 05-09 03:16:35 | workflow | Starting QMC with 1 local XLA devices across 1 processes.
+I | 05-09 03:16:35 |  jaqmc   | Start KRHF
+converged SCF energy = -1.35540809266599
+I | 05-09 03:16:49 |  jaqmc   | Complete KRHF
+I | 05-09 03:16:56 | pretrain | Start 2000 pretrain steps.
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/jaqmc", line 10, in <module>
+    sys.exit(cli())
+             ^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1406, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/cli.py", line 39, in command
+    workflow(cfg, dry_run=dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/cli.py", line 95, in solid_train
+    SolidTrainWorkflow(cfg)(dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py", line 127, in __call__
+    self.run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/workflow.py", line 99, in run
+    super().run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/vmc.py", line 112, in run
+    pretrain_state = self.pretrain_stage.run(pretrain_state, context, run_rngs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/base.py", line 153, in run
+    with self.writers.open(
+         ^^^^^^^^^^^^^^^^^^
+  File "/home/jc2405/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/base.py", line 133, in open
+    stack.enter_context(
+  File "/home/jc2405/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 526, in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+  File "/home/jc2405/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py", line 50, in open
+    with save_path.open(open_mode) as f, h5py.File(f, "a") as self._h5_file:
+                                         ^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/h5py/_hl/files.py", line 555, in __init__
+    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/h5py/_hl/files.py", line 244, in make_fid
+    fid = h5f.open(name, h5f.ACC_RDWR, fapl=fapl)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 106, in h5py.h5f.open
+OSError: Unable to synchronously open file (file signature not found)

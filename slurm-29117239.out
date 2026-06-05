@@ -1,0 +1,325 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 29117239
+======
+Time: Sat May  9 21:57:10 BST 2026
+Running on master node: gpu-q-22
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-22
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+jaqmc solid train   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/hydrogen_chain.yml   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8
+
+I | 05-09 21:57:57 | runtime  | Initialize a local runtime.
+I | 05-09 21:59:51 |   jax    | Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+E0509 21:59:53.694257  127501 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0509 21:59:53.694401  127502 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0509 21:59:53.694939  127503 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+I | 05-09 22:00:14 |  config  | Resolved configurations:
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:18
+logging:
+  level: info
+  stream: stderr
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:63
+jax:
+  enable_x64: false
+  debug_infs: false
+  debug_nans: false
+  disable_jit: false
+  default_matmul_precision: float32
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:103
+distributed:
+  coordinator_address: null
+  num_processes: 1
+  process_id: 0
+  initialization_timeout: 300
+  wait_second_before_connect: 10.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py:42
+workflow:
+  seed: null
+  batch_size: 4096
+  save_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8
+  restore_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8
+  config:
+    ignore_extra: false
+    verbose: false
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/config/two_atom_chain.py:22
+system:
+  module: two_atom_chain
+  symbol: H
+  bond_length: 1.8
+  unit: bohr
+  supercell: 1
+  vacuum_separation: 100.0
+  spin: 0
+  basis: sto-3g
+  ecp: null
+  electron_init_width: 1.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/wavefunction.py:23
+wf:
+  module: jaqmc.app.solid.wavefunction
+  hidden_dims_single: [256, 256, 256, 256]
+  hidden_dims_double: [32, 32, 32, 32]
+  ndets: 16
+  distance_type: nu
+  envelope_type: abs_isotropic
+  sym_type: minimal
+  orbitals_spin_split: true
+  full_det: true
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/sampler/mcmc.py:57
+sampler:
+  steps: 10
+  initial_width: 0.1
+  adapt_frequency: 100
+  pmove_range: [0.5, 0.55]
+pretrain:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 2000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.optax:adam
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.0003
+      delay: 2000.0
+      decay: 1.0
+    b1: 0.9
+    b2: 0.999
+    eps: 1.0e-08
+    eps_root: 0.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: loss
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+train:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 200000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.kfac:KFACOptimizer
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.05
+      delay: 2000.0
+      decay: 1.0
+    norm_constraint: 0.001
+    curvature_ema: 0.95
+    l2_reg: 0.0
+    inverse_update_period: 1
+    damping: 0.001
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/loss_grad.py:24
+  grads:
+    vmap_chunk_size: null
+    loss_key: total_energy
+    clip_scale: 5.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: pmove:.2f,energy=total_energy:.4f,variance=total_energy_var:.4f
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+estimators:
+  energy:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/kinetic/euclidean.py:28
+    kinetic:
+      vmap_chunk_size: null
+      mode: forward_laplacian
+      sparsity_threshold: 0
+  enabled:
+    spin: false
+    density: false
+I | 05-09 22:00:14 |  config  | Current config is the same as that of previous run.
+I | 05-09 22:00:14 | workflow | Starting QMC with 1 local XLA devices across 1 processes.
+I | 05-09 22:00:14 |  jaqmc   | Start KRHF
+converged SCF energy = -1.35540809266599
+I | 05-09 22:00:31 |  jaqmc   | Complete KRHF
+I | 05-09 22:00:44 |checkpoint| Restoring checkpoint /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8/pretrain_ckpt_001999.npz
+I | 05-09 22:00:44 |checkpoint| Restored checkpoint /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8/pretrain_ckpt_001999.npz
+I | 05-09 22:00:45 |  jaqmc   | Setting Ewald alpha to 1.388889
+I | 05-09 22:00:50 |   absl   | ==================================================
+I | 05-09 22:00:50 |   absl   | Graph parameter registrations:
+I | 05-09 22:00:50 |   absl   | {'params': {'backbone_layer': {'Dense_0': {'bias': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated[1]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated[1]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_1': {'bias': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated[2]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated[2]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_2': {'bias': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated[1]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated[1]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_3': {'bias': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated[2]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated[2]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_4': {'bias': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated[1]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated[1]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_5': {'bias': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated[2]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated[2]_flax_dense_with_bias]'},
+I | 05-09 22:00:50 |   absl   |                                'Dense_6': {'bias': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated[1]_flax_dense_with_bias]',
+I | 05-09 22:00:50 |   absl   |                                            'kernel': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated[1]_flax_dense_with_bias]'}},
+I | 05-09 22:00:50 |   absl   |             'envelope_layer': {'_env_down': {'pi': 'Auto[tag_variant=scale_and_shift(3)|match_type=scale_only_broadcast_1]',
+I | 05-09 22:00:50 |   absl   |                                              'sigma': 'Auto[tag_variant=scale_and_shift(2)|match_type=scale_only_broadcast_1]'},
+I | 05-09 22:00:50 |   absl   |                                '_env_up': {'pi': 'Auto[tag_variant=scale_and_shift(1)|match_type=scale_only_broadcast_1]',
+I | 05-09 22:00:50 |   absl   |                                            'sigma': 'Auto[tag_variant=scale_and_shift(0)|match_type=scale_only_broadcast_1]'}},
+I | 05-09 22:00:50 |   absl   |             'imag_orbital_layer': {'SplitChannelDense_0': {'DenseGeneral_0': {'kernel': 'Auto[tag_variant=repeated_dense(9)|match_type=repeated[1]_flax_dense_no_bias]'},
+I | 05-09 22:00:50 |   absl   |                                                            'DenseGeneral_1': {'kernel': 'Auto[tag_variant=repeated_dense(10)|match_type=repeated[1]_flax_dense_no_bias]'}}},
+I | 05-09 22:00:50 |   absl   |             'real_orbital_layer': {'SplitChannelDense_0': {'DenseGeneral_0': {'kernel': 'Auto[tag_variant=repeated_dense(7)|match_type=repeated[1]_flax_dense_no_bias]'},
+I | 05-09 22:00:50 |   absl   |                                                            'DenseGeneral_1': {'kernel': 'Auto[tag_variant=repeated_dense(8)|match_type=repeated[1]_flax_dense_no_bias]'}}}}}
+I | 05-09 22:00:50 |   absl   | ==================================================
+I | 05-09 22:00:50 |   absl   | Graph registered losses:
+I | 05-09 22:00:50 |   absl   | NormalMeanNegativeLogProbLoss(mean=Var(id=22449883026048):complex64[4096,1], variance=Literal(0.5), weight=Literal(1.0), normalize_log_prob=Literal(True))
+I | 05-09 22:00:50 |   absl   | ==================================================
+I | 05-09 22:00:50 |   absl   | BlockDiagonalCurvature blocks:
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(0)|match_type=repeated[1]_flax_dense_with_bias], params shapes: ((32, 256), (256,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(1)|match_type=repeated[2]_flax_dense_with_bias], params shapes: ((4, 32), (32,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(2)|match_type=repeated[1]_flax_dense_with_bias], params shapes: ((832, 256), (256,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(3)|match_type=repeated[2]_flax_dense_with_bias], params shapes: ((32, 32), (32,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(4)|match_type=repeated[1]_flax_dense_with_bias], params shapes: ((832, 256), (256,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(5)|match_type=repeated[2]_flax_dense_with_bias], params shapes: ((32, 32), (32,))
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['ab -> (a)(b)', 'a -> ()(a)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(6)|match_type=repeated[1]_flax_dense_with_bias], params shapes: ((832, 256), (256,))
+I | 05-09 22:00:50 |   absl   | ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(3)|match_type=scale_only_broadcast_1], params shapes: ((2, 2, 16),)
+I | 05-09 22:00:50 |   absl   | ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(2)|match_type=scale_only_broadcast_1], params shapes: ((2, 2, 16),)
+I | 05-09 22:00:50 |   absl   | ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(1)|match_type=scale_only_broadcast_1], params shapes: ((2, 2, 16),)
+I | 05-09 22:00:50 |   absl   | ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(0)|match_type=scale_only_broadcast_1], params shapes: ((2, 2, 16),)
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['abc -> (a)(bc)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(9)|match_type=repeated[1]_flax_dense_no_bias], params shapes: ((256, 16, 2),)
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['abc -> (a)(bc)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(10)|match_type=repeated[1]_flax_dense_no_bias], params shapes: ((256, 16, 2),)
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['abc -> (a)(bc)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(7)|match_type=repeated[1]_flax_dense_no_bias], params shapes: ((256, 16, 2),)
+I | 05-09 22:00:50 |   absl   | RepeatedDenseBlock(parameter_specs=['abc -> (a)(bc)'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(8)|match_type=repeated[1]_flax_dense_no_bias], params shapes: ((256, 16, 2),)
+I | 05-09 22:00:50 |   absl   | ==================================================
+I | 05-09 22:00:50 |  train   | Start 200000 train steps.
+W | 05-09 22:00:50 |  train   | Disabling check_vma (incompatible with KFAC).
+I | 05-09 22:00:50 |  jaqmc   | Start burn in 100 steps.
+I | 05-09 22:00:55 |  jaqmc   | Burn in 100 steps complete.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/jaqmc", line 10, in <module>
+    sys.exit(cli())
+             ^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1406, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/cli.py", line 39, in command
+    workflow(cfg, dry_run=dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/cli.py", line 95, in solid_train
+    SolidTrainWorkflow(cfg)(dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py", line 127, in __call__
+    self.run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/workflow.py", line 99, in run
+    super().run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/vmc.py", line 125, in run
+    train_state = self.train_stage.run(train_state, context, run_rngs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/base.py", line 156, in run
+    for step, state in self.loop(state, initial_step, rngs):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py", line 313, in loop
+    stats, state = compute(state, sub_rngs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py", line 250, in compute_step
+    updates, opt_state = self.optimizer.update(
+                         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/optimizer/kfac/kfac.py", line 153, in update
+    precond_state = self._preconditioner.maybe_update(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/optax_interface.py", line 305, in maybe_update
+    state = self.maybe_update_estimator_curvature(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/optax_interface.py", line 359, in maybe_update_estimator_curvature
+    return self._maybe_update_estimator_state(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/optax_interface.py", line 413, in _maybe_update_estimator_state
+    estimator_state = lax.cond(
+                      ^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/optax_interface.py", line 327, in _update_estimator_curvature
+    state = self.estimator.update_curvature_matrix_estimate(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/utils/misc.py", line 361, in wrapped
+    return method(instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/block_diagonal.py", line 708, in update_curvature_matrix_estimate
+    losses, losses_vjp = self._compute_losses_vjp(func_args)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/utils/misc.py", line 361, in wrapped
+    return method(instance, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/curvature_estimator/block_diagonal.py", line 360, in _compute_losses_vjp
+    return self._vjp(func_args)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/tracer.py", line 481, in wrapped_transformation
+    return f(func_args, *args)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/optimizer/kfac/complex_support.py", line 112, in patched_layer_tag_vjp
+    return _layer_tag_vjp(processed_jaxpr, primal_func_args)
+    ^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/tracer.py", line 930, in _layer_tag_vjp
+    layer_input_values = forward()
+                         ^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/tracer.py", line 855, in forward
+    write(eqn.outvars, tgm.eval_jaxpr_eqn(eqn, read(eqn.invars)))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/kfac_jax/_src/tag_graph_matcher.py", line 69, in eval_jaxpr_eqn
+    subfuns, bind_params = eqn.primitive.get_bind_params(eqn.params)
+    ^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+--------------------
+For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.

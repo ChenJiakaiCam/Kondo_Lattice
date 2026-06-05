@@ -1,0 +1,10 @@
+system:
+  module: two_atom_chain
+  symbol: Fe                  # Atomic symbol (both atoms are the same element)
+  bond_length: 3.78           # Distance between atoms along the chain
+  unit: bohr                 # or "angstrom"
+  spin: 8                    # n_up - n_down per primitive cell
+  # supercell: 4             # Optional repetition along the chain direction
+  # basis: sto-3g
+  basis: ccecpccpvdz
+  ecp: ccecp

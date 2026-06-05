@@ -1,0 +1,17 @@
+system:
+  lattice_vectors:            # 3x3 primitive cell vectors (Bohr)
+  # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
+    - [7.56, 0.0, 0.0]
+    - [0.0, 100.0, 0.0]
+    - [0.0, 0.0, 100.0] 
+  atoms:
+    - symbol: Fe
+      coords: [0.0, 0.0, 0.0]
+    - symbol: H
+      coords: [3.78, 0.0, 0.0]
+  electron_spins: [7, 7]     # Should give ionized solid? 
+  basis: 
+    Fe: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Fe: ccecp

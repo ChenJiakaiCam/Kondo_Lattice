@@ -1,0 +1,31 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Unloading cuda/11.4.0/gcc-9.4.0-3hnxhjt
+  ERROR: cuda/11.4.0/gcc-9.4.0-3hnxhjt cannot be unloaded due to a prereq.
+    HINT: Might try "module unload ucx/1.11.1/gcc-9.4.0-lktqyl4" first.
+Changed directory to /home/jc2405.
+
+JobID: 29096437
+======
+Time: Sat May  9 09:43:27 BST 2026
+Running on master node: gpu-q-81
+Current directory: /home/jc2405
+
+Nodes allocated:
+================
+gpu-q-81
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+jaqmc solid train --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/hydrogen_chain.yml workflow.save_path=jaqmc/runs/h_chain_1.8
+
+slurmstepd: error: *** JOB 29096437 ON gpu-q-81 CANCELLED AT 2026-05-09T09:44:01 ***
