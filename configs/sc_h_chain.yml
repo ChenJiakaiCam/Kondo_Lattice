@@ -5,13 +5,16 @@ system:
     - [0.0, 100.0, 0.0]
     - [0.0, 0.0, 100.0] 
   atoms:
-    - symbol: Fe
+    - symbol: Sc
       coords: [0.0, 0.0, 0.0]
+      charge: 11.0
     - symbol: H
       coords: [3.78, 0.0, 0.0]
-  electron_spins: [7, 7]     # Should give ionized solid? 
+      charge: 1.0
+  # Sc (with ccecp): 21 total electrons - 10 core = 11 valence electrons. H: 1 valence electron. Total = 12 electrons per unit cell. 
+  electron_spins: [6, 6]     
   basis: 
-    Fe: ccecpccpvdz
+    Sc: ccecpccpvdz
     H: cc-pvdz
   ecp:
-    Fe: ccecp
+    Sc: ccecp
