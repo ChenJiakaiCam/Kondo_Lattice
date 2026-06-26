@@ -9,7 +9,7 @@
 
 #! sbatch directives begin here ###############################
 #! Name of the job:
-#SBATCH -J sc_h_chain_eval
+#SBATCH -J sc_h_h_chain_eval
 #! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
@@ -19,7 +19,7 @@
 #! Specify the number of GPUs per node
 #SBATCH --gres=gpu:4
 #! How much wallclock time will be required?
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
@@ -64,9 +64,9 @@ export OMP_NUM_THREADS=1
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
-CMD="jaqmc solid evaluate --yml ./configs/sc_h_chain.yml \
-workflow.save_path=./runs/sc_h_chain_3.78_spin_6_6_density_2d \
-workflow.source_path=./runs/sc_h_chain_3.78_spin_6_6"
+CMD="jaqmc solid evaluate --yml ./configs/sc_h_h_chain.yml \
+workflow.save_path=./runs/sc_h_h_chain_3.78_spin_7_6_density \
+workflow.source_path=./runs/sc_h_h_chain_3.78_spin_7_6_density"
 
 ###############################################################
 ### You should not have to change anything below this line ####

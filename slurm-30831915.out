@@ -1,0 +1,318 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30831915
+======
+Time: Sat Jun 20 18:51:23 BST 2026
+Running on master node: gpu-q-77
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-77
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+jaqmc solid train   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_h_chain.yml   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density  pretrain.run.iterations=1000 train.run.iterations=10000
+
+I | 06-20 18:52:07 | runtime  | Initialize a local runtime.
+I | 06-20 18:53:40 |   jax    | Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I | 06-20 18:54:07 |  jaqmc   | ECP enabled for elements: ['Sc']
+I | 06-20 18:54:07 |  config  | Resolved configurations:
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:18
+logging:
+  level: info
+  stream: stderr
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:63
+jax:
+  enable_x64: false
+  debug_infs: false
+  debug_nans: false
+  disable_jit: false
+  default_matmul_precision: float32
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:103
+distributed:
+  coordinator_address: null
+  num_processes: 1
+  process_id: 0
+  initialization_timeout: 300
+  wait_second_before_connect: 10.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py:42
+workflow:
+  seed: null
+  batch_size: 4096
+  save_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  restore_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  config:
+    ignore_extra: false
+    verbose: false
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/config/base.py:15
+system:
+  module: jaqmc.app.solid.config.base
+  atoms:
+  - symbol: Sc
+    coords: [0.0, 0.0, 0.0]
+    atomic_number: 21
+    charge: 11.0
+  - symbol: H
+    coords: [3.78, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [7.56, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [11.34, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  basis:
+    Sc: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Sc: ccecp
+  electron_spins: [7, 7]
+  fixed_spins_per_atom: null
+  electron_init_width: 1.0
+  lattice_vectors:
+  - [15.12, 0.0, 0.0]
+  - [0.0, 200.0, 0.0]
+  - [0.0, 0.0, 200.0]
+  supercell_matrix:
+  - [1, 0, 0]
+  - [0, 1, 0]
+  - [0, 0, 1]
+  twist: [0.0, 0.0, 0.0]
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/wavefunction.py:23
+wf:
+  module: jaqmc.app.solid.wavefunction
+  hidden_dims_single: [256, 256, 256, 256]
+  hidden_dims_double: [32, 32, 32, 32]
+  ndets: 16
+  distance_type: nu
+  envelope_type: abs_isotropic
+  sym_type: minimal
+  orbitals_spin_split: true
+  full_det: true
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/sampler/mcmc.py:57
+sampler:
+  steps: 10
+  initial_width: 0.1
+  adapt_frequency: 100
+  pmove_range: [0.5, 0.55]
+pretrain:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 1000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.optax:adam
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.0003
+      delay: 2000.0
+      decay: 1.0
+    b1: 0.9
+    b2: 0.999
+    eps: 1.0e-08
+    eps_root: 0.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: loss
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+train:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 10000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.kfac:KFACOptimizer
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.05
+      delay: 2000.0
+      decay: 1.0
+    norm_constraint: 0.001
+    curvature_ema: 0.95
+    l2_reg: 0.0
+    inverse_update_period: 1
+    damping: 0.001
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/loss_grad.py:24
+  grads:
+    vmap_chunk_size: null
+    loss_key: total_energy
+    clip_scale: 5.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: pmove:.2f,energy=total_energy:.4f,variance=total_energy_var:.4f
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+estimators:
+  energy:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/kinetic/euclidean.py:28
+    kinetic:
+      vmap_chunk_size: null
+      mode: forward_laplacian
+      sparsity_threshold: 0
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/ecp/estimator.py:32
+    ecp:
+      vmap_chunk_size: null
+      max_core: 2
+      quadrature_id: null
+      electrons_field: electrons
+      atoms_field: atoms
+  enabled:
+    spin: false
+    density: true
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/density/fractional.py:30
+  density:
+    axes:
+      a:
+        lattice_index: 0
+        bins: 100
+      b: null
+      c: null
+I | 06-20 18:54:07 |  config  | Diff with previous run:
+--- Restored Config
++++ Current Config
+@@ -41,18 +41,22 @@
+     coords: [7.56, 0.0, 0.0]
+     atomic_number: 1
+     charge: 1.0
++  - symbol: H
++    coords: [11.34, 0.0, 0.0]
++    atomic_number: 1
++    charge: 1.0
+   basis:
+     Sc: ccecpccpvdz
+     H: cc-pvdz
+   ecp:
+     Sc: ccecp
+-  electron_spins: [7, 6]
++  electron_spins: [7, 7]
+   fixed_spins_per_atom: null
+   electron_init_width: 1.0
+   lattice_vectors:
+-  - [11.34, 0.0, 0.0]
+-  - [0.0, 100.0, 0.0]
+-  - [0.0, 0.0, 100.0]
++  - [15.12, 0.0, 0.0]
++  - [0.0, 200.0, 0.0]
++  - [0.0, 0.0, 200.0]
+   supercell_matrix:
+   - [1, 0, 0]
+   - [0, 1, 0]
+I | 06-20 18:54:07 | workflow | Starting QMC with 4 local XLA devices across 1 processes.
+I | 06-20 18:54:07 |  jaqmc   | Start KRHF
+
+WARN: Even tempered Gaussians are generated as DF auxbasis for  Sc
+
+
+WARN: HOMO -0.197698804049 == LUMO -0.197698692159
+
+converged SCF energy = -46.7741684678123
+I | 06-20 19:54:31 |  jaqmc   | Complete KRHF
+I | 06-20 19:54:52 | pretrain | Start 1000 pretrain steps.
+I | 06-20 19:54:52 |  jaqmc   | Start burn in 100 steps.
+I | 06-20 19:55:02 |  jaqmc   | Burn in 100 steps complete.
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/jaqmc", line 10, in <module>
+    sys.exit(cli())
+             ^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1406, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1873, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/cli.py", line 39, in command
+    workflow(cfg, dry_run=dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/cli.py", line 95, in solid_train
+    SolidTrainWorkflow(cfg)(dry_run)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py", line 127, in __call__
+    self.run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/workflow.py", line 99, in run
+    super().run()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/vmc.py", line 112, in run
+    pretrain_state = self.pretrain_stage.run(pretrain_state, context, run_rngs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/base.py", line 156, in run
+    for step, state in self.loop(state, initial_step, rngs):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py", line 314, in loop
+    self.writers.write(step, stats)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/base.py", line 147, in write
+    writer.write(step, stats)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py", line 108, in write
+    values[k] = self.to_scalar(v)
+                ^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/base.py", line 27, in to_scalar
+    return val.item()
+           ^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/numpy/array_methods.py", line 275, in _item
+    arr = core.concrete_or_error(np.asarray, self, context="This occurred in the item() method of jax.Array")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/core.py", line 1981, in concrete_or_error
+    return force(val)
+           ^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/array.py", line 414, in __array__
+    return np.asarray(self._value, dtype=dtype, **kwds)  # pyrefly: ignore[no-matching-overload]
+                      ^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/profiler.py", line 420, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/array.py", line 623, in _value
+    npy_value, did_copy = self._single_device_array_to_np_array_did_copy()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: INTERNAL: NCCL operation ncclGetUniqueId(&id) failed: Unable to load NCCL library. Multi-GPU collectives will not work.. Last NCCL warning(error) log entry (may be unrelated) 'Unable to load NCCL library. Multi-GPU collectives will not work.'. [executable_name='jit_compute_step']

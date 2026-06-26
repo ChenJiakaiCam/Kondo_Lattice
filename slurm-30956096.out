@@ -1,0 +1,63 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30956096
+======
+Time: Tue Jun 23 11:37:20 BST 2026
+Running on master node: gpu-q-36
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-36
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+python /rds/user/jc2405/hpc-work/JaQMC/jaqmc/local_energies_wf.py
+
+E0623 11:39:42.857196  369313 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0623 11:39:42.857367  369314 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0623 11:39:42.857537  369315 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+Loading cached k-points from disk...
+Run SCF: Skipped (Loaded from cache!)
+Successfully loaded 4096 walkers from train_ckpt_009999.npz!
+Loaded state contents:
+  - params: dict with 848,608 parameters
+  - batched_data: 4096 walkers
+  - electron positions shape: (4096, 12, 3)
+Compiling JAX graph and computing local energies... (See you in ~26 mins!)
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/local_energies_wf.py", line 149, in <module>
+    complex_local_energies = compute_local_energies(params, batched_data)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/local_energies_wf.py", line 140, in <lambda>
+    lambda p, bd: jax.vmap(
+                  ^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/local_energies_wf.py", line 141, in <lambda>
+    lambda d: compute_local_energy(p, d),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/local_energies_wf.py", line 136, in compute_local_energy
+    potential_stats, _ = potential_est.evaluate_single_walker(params, data, {}, None, jax.random.PRNGKey(0))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/hamiltonian.py", line 54, in evaluate_single_walker
+    potential = self.ewald.energy(all_coords, all_charges)
+                ^^^^^^^^^^
+AttributeError: 'PotentialEnergy' object has no attribute 'ewald'
+--------------------
+For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.

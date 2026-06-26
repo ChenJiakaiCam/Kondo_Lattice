@@ -1,0 +1,38 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30852316
+======
+Time: Sat Jun 20 22:45:45 BST 2026
+Running on master node: gpu-q-19
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-19
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+python /rds/user/jc2405/hpc-work/JaQMC/jaqmc/physical_observables_wf.py
+
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+E0620 22:50:03.943248  242980 slow_operation_alarm.cc:73] 
+********************************
+[Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+slurmstepd: error: *** JOB 30852316 ON gpu-q-19 CANCELLED AT 2026-06-20T23:15:51 DUE TO TIME LIMIT ***

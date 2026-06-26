@@ -1,0 +1,80 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30846328
+======
+Time: Sat Jun 20 21:06:01 BST 2026
+Running on master node: gpu-q-1
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-1
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+python /rds/user/jc2405/hpc-work/JaQMC/jaqmc/physical_observables_wf.py
+
+E0620 21:06:25.427310 2239618 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0620 21:06:25.427497 2239619 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0620 21:06:25.427598 2239620 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+E0620 21:09:14.641506 2239653 slow_operation_alarm.cc:73] 
+********************************
+[Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+E0620 21:34:00.093599 2239630 slow_operation_alarm.cc:140] The operation took 26m45.452152568s
+
+********************************
+[Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+Loading cached k-points from disk...
+Run SCF: Skipped (Loaded from cache!)
+Successfully loaded 4096 walkers from train_ckpt_009999.npz!
+Loaded state contents:
+  - params: dict with 848,608 parameters
+  - batched_data: 4096 walkers
+  - electron positions shape: (4096, 12, 3)
+Wavefunction output keys: ['abs_logdets', 'logpsi', 'sign_logdets']
+
+log(ψ) shape: (4096,)
+log(ψ) statistics:
+  mean: -14.9982-0.9169j
+  std:  2.7333
+Global coordinate range: [0.0000, 99.9999]
+X-axis range: [0.0000, 7.5600]
+Y-axis range: [0.0000, 99.9999]
+Z-axis range: [0.0000, 99.9998]
+Single walker evaluation:
+  log(ψ) = -13.498222+0.622141j
+Pipeline initialized successfully!
+Computed observables (from 4096 walkers):
+  Kinetic energy:   19.072189-0.000438j Ha
+  Potential energy: -74.395454 Ha
+  Total energy:     -55.323265-0.000438j Ha
+Energy variance (from estimator pipeline):
+  Kinetic var:   53.008606-0.148821j
+  Potential var: 108.101074
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/physical_observables_wf.py", line 243, in <module>
+    stats_to_save = {key: float(value) for key, value in final_stats.items()}
+                          ^^^^^^^^^^^^
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/array.py", line 300, in __float__
+    return self._value.__float__()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'complex'

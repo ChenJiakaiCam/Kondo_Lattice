@@ -1,0 +1,209 @@
+I | 06-21 06:59:38 | runtime  | Initialize a local runtime.
+E | 06-21 06:59:42 |   jax    | Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 201, in _version_check
+    version = get_version()
+              ^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:85: operation cusparseGetProperty(MAJOR_VERSION, &major) failed: The cuSPARSE library was not found.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 508, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 370, in initialize
+    _check_cuda_versions(raise_on_first_error = True)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 266, in _check_cuda_versions
+    _version_check("cuSPARSE", cuda_versions.cusparse_get_version,
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 205, in _version_check
+    raise RuntimeError(err_msg) from e
+RuntimeError: Unable to load cuSPARSE. Is it installed?
+I | 06-21 06:59:42 |   jax    | Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+W | 06-21 06:59:42 |   jax    | An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+I | 06-21 06:59:44 |  jaqmc   | ECP enabled for elements: ['Sc']
+I | 06-21 06:59:44 |  config  | Resolved configurations:
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:18
+logging:
+  level: info
+  stream: stderr
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:63
+jax:
+  enable_x64: false
+  debug_infs: false
+  debug_nans: false
+  disable_jit: false
+  default_matmul_precision: float32
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:103
+distributed:
+  coordinator_address: null
+  num_processes: 1
+  process_id: 0
+  initialization_timeout: 300
+  wait_second_before_connect: 10.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py:42
+workflow:
+  seed: null
+  batch_size: 4096
+  save_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  restore_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  config:
+    ignore_extra: false
+    verbose: false
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/config/base.py:15
+system:
+  module: jaqmc.app.solid.config.base
+  atoms:
+  - symbol: Sc
+    coords: [0.0, 0.0, 0.0]
+    atomic_number: 21
+    charge: 11.0
+  - symbol: H
+    coords: [3.78, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [7.56, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [11.34, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  basis:
+    Sc: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Sc: ccecp
+  electron_spins: [7, 7]
+  fixed_spins_per_atom: null
+  electron_init_width: 1.0
+  lattice_vectors:
+  - [15.12, 0.0, 0.0]
+  - [0.0, 200.0, 0.0]
+  - [0.0, 0.0, 200.0]
+  supercell_matrix:
+  - [1, 0, 0]
+  - [0, 1, 0]
+  - [0, 0, 1]
+  twist: [0.0, 0.0, 0.0]
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/wavefunction.py:23
+wf:
+  module: jaqmc.app.solid.wavefunction
+  hidden_dims_single: [256, 256, 256, 256]
+  hidden_dims_double: [32, 32, 32, 32]
+  ndets: 16
+  distance_type: nu
+  envelope_type: abs_isotropic
+  sym_type: minimal
+  orbitals_spin_split: true
+  full_det: true
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/sampler/mcmc.py:57
+sampler:
+  steps: 10
+  initial_width: 0.1
+  adapt_frequency: 100
+  pmove_range: [0.5, 0.55]
+pretrain:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 1000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.optax:adam
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.0003
+      delay: 2000.0
+      decay: 1.0
+    b1: 0.9
+    b2: 0.999
+    eps: 1.0e-08
+    eps_root: 0.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: loss
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+train:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 10000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.kfac:KFACOptimizer
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.05
+      delay: 2000.0
+      decay: 1.0
+    norm_constraint: 0.001
+    curvature_ema: 0.95
+    l2_reg: 0.0
+    inverse_update_period: 1
+    damping: 0.001
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/loss_grad.py:24
+  grads:
+    vmap_chunk_size: null
+    loss_key: total_energy
+    clip_scale: 5.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: pmove:.2f,energy=total_energy:.4f,variance=total_energy_var:.4f
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+estimators:
+  energy:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/kinetic/euclidean.py:28
+    kinetic:
+      vmap_chunk_size: null
+      mode: forward_laplacian
+      sparsity_threshold: 0
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/ecp/estimator.py:32
+    ecp:
+      vmap_chunk_size: null
+      max_core: 2
+      quadrature_id: null
+      electrons_field: electrons
+      atoms_field: atoms
+  enabled:
+    spin: false
+    density: true
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/density/fractional.py:30
+  density:
+    axes:
+      a:
+        lattice_index: 0
+        bins: 100
+      b: null
+      c: null
+I | 06-21 06:59:44 |  config  | Current config is the same as that of previous run.
+I | 06-21 06:59:44 | workflow | Starting QMC with 1 local XLA devices across 1 processes.
+I | 06-21 06:59:44 |  jaqmc   | Start KRHF

@@ -1,0 +1,1083 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+===== Diagnostics =====
+Hostname: gpu-q-82
+CUDA_VISIBLE_DEVICES=0,1,2,3
+LD_LIBRARY_PATH=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/nvidia/nccl/lib:/usr/local/software/cuda/12.1/lib64:/usr/local/software/cuda/12.1/lib:/usr/local/software/cuda/12.1/nvvm/lib64:/usr/local/software/master/gcc/11/lib64:/usr/local/software/master/gcc/11/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/openmpi-4.1.1-epagguvqfrwuokz2ftiyzbxibae5afnn/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/ucx-1.11.1-lktqyl4gjbz36wqifl2e2wonn65xtrsr/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/rdma-core-34.0-5eo5n2uaghdvdvl33xjjqz5gn2aigh6f/lib64:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/rdma-core-34.0-5eo5n2uaghdvdvl33xjjqz5gn2aigh6f/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/libnl-3.3.0-whwhrwb3ejbikv4jhcd6m7aol6pysuxz/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/knem-1.1.4-bpbxgvamgp4mxiaulw4bwvy4dcggu3vu/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/gdrcopy-2.2-e4igtfpykmoeel576nnlyrwwl6udeu4r/lib64:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/gdrcopy-2.2-e4igtfpykmoeel576nnlyrwwl6udeu4r/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/cuda-11.4.0-3hnxhjt2jt4ruy75w2q4mnvkw7dty72l/lib64:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/numactl-2.0.14-52dwc6npektl3avvx4dblusvs3rfvvb7/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/libevent-2.1.12-hgny7cm624oobvjbfyatcdfuv6bxak6w/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/hwloc-2.5.0-7sqomgasef2ztjk33fdqgboe5orqs2d3/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/ncurses-6.2-aiirok73uxst5qo6rpgoxlrxzk52hcjw/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/libxml2-2.9.12-gnknt5ehw7jxej2vtnwg4o5ghtywuep3/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/libiconv-1.16-ahebbovdqo62ehso6t6rwu7kit4bo76z/lib:/usr/local/software/spack/spack-rhel8-20210927/opt/spack/linux-centos8-zen2/gcc-9.4.0/libpciaccess-0.16-6fonbj6jk6ifffsmvprditioexo2agjz/lib:/usr/local/software/cuda/11.4/lib64:/usr/local/software/cuda/11.4/lib:/usr/local/software/cuda/11.4/nvvm/lib64:/usr/local/software/global-rhel8/lib:/usr/local/software/slurm/current-rhel8/lib
+Sun Jun 21 02:53:13 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-80GB          On  |   00000000:01:00.0 Off |                    0 |
+| N/A   41C    P0             71W /  500W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA A100-SXM4-80GB          On  |   00000000:41:00.0 Off |                    0 |
+| N/A   34C    P0             64W /  500W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA A100-SXM4-80GB          On  |   00000000:81:00.0 Off |                    0 |
+| N/A   41C    P0             73W /  500W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA A100-SXM4-80GB          On  |   00000000:C1:00.0 Off |                    0 |
+| N/A   35C    P0             66W /  500W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Loading NCCL...
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/home/jc2405/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libnccl.so: cannot open shared object file: No such file or directory
+=======================
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30855089
+======
+Time: Sun Jun 21 02:53:15 BST 2026
+Running on master node: gpu-q-82
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-82
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+jaqmc solid train   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_h_chain.yml   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density  pretrain.run.iterations=1000 train.run.iterations=10000
+
+I | 06-21 02:53:59 | runtime  | Initialize a local runtime.
+E | 06-21 02:55:32 |   jax    | Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 201, in _version_check
+    version = get_version()
+              ^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:85: operation cusparseGetProperty(MAJOR_VERSION, &major) failed: The cuSPARSE library was not found.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 508, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 370, in initialize
+    _check_cuda_versions(raise_on_first_error = True)
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 266, in _check_cuda_versions
+    _version_check("cuSPARSE", cuda_versions.cusparse_get_version,
+  File "/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages/jax_plugins/xla_cuda12/__init__.py", line 205, in _version_check
+    raise RuntimeError(err_msg) from e
+RuntimeError: Unable to load cuSPARSE. Is it installed?
+I | 06-21 02:55:32 |   jax    | Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+W | 06-21 02:55:32 |   jax    | An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+I | 06-21 02:55:37 |  jaqmc   | ECP enabled for elements: ['Sc']
+I | 06-21 02:55:37 |  config  | Resolved configurations:
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:18
+logging:
+  level: info
+  stream: stderr
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:63
+jax:
+  enable_x64: false
+  debug_infs: false
+  debug_nans: false
+  disable_jit: false
+  default_matmul_precision: float32
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/runtime.py:103
+distributed:
+  coordinator_address: null
+  num_processes: 1
+  process_id: 0
+  initialization_timeout: 300
+  wait_second_before_connect: 10.0
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/base.py:42
+workflow:
+  seed: null
+  batch_size: 4096
+  save_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  restore_path: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_h_chain_3.78_spin_7_6_density
+  config:
+    ignore_extra: false
+    verbose: false
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/config/base.py:15
+system:
+  module: jaqmc.app.solid.config.base
+  atoms:
+  - symbol: Sc
+    coords: [0.0, 0.0, 0.0]
+    atomic_number: 21
+    charge: 11.0
+  - symbol: H
+    coords: [3.78, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [7.56, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  - symbol: H
+    coords: [11.34, 0.0, 0.0]
+    atomic_number: 1
+    charge: 1.0
+  basis:
+    Sc: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Sc: ccecp
+  electron_spins: [7, 7]
+  fixed_spins_per_atom: null
+  electron_init_width: 1.0
+  lattice_vectors:
+  - [15.12, 0.0, 0.0]
+  - [0.0, 200.0, 0.0]
+  - [0.0, 0.0, 200.0]
+  supercell_matrix:
+  - [1, 0, 0]
+  - [0, 1, 0]
+  - [0, 0, 1]
+  twist: [0.0, 0.0, 0.0]
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/wavefunction.py:23
+wf:
+  module: jaqmc.app.solid.wavefunction
+  hidden_dims_single: [256, 256, 256, 256]
+  hidden_dims_double: [32, 32, 32, 32]
+  ndets: 16
+  distance_type: nu
+  envelope_type: abs_isotropic
+  sym_type: minimal
+  orbitals_spin_split: true
+  full_det: true
+# Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/sampler/mcmc.py:57
+sampler:
+  steps: 10
+  initial_width: 0.1
+  adapt_frequency: 100
+  pmove_range: [0.5, 0.55]
+pretrain:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 1000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.optax:adam
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.0003
+      delay: 2000.0
+      decay: 1.0
+    b1: 0.9
+    b2: 0.999
+    eps: 1.0e-08
+    eps_root: 0.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: loss
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+train:
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:30
+  run:
+    check_vma: true
+    iterations: 10000
+    burn_in: 100
+    save_time_interval: 600
+    save_step_interval: 1000
+    stop_on_nan: loss
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/workflow/stage/vmc.py:77
+  optim:
+    module: jaqmc.optimizer.kfac:KFACOptimizer
+    learning_rate:
+      module: jaqmc.optimizer.schedule:Standard
+      rate: 0.05
+      delay: 2000.0
+      decay: 1.0
+    norm_constraint: 0.001
+    curvature_ema: 0.95
+    l2_reg: 0.0
+    inverse_update_period: 1
+    damping: 0.001
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/loss_grad.py:24
+  grads:
+    vmap_chunk_size: null
+    loss_key: total_energy
+    clip_scale: 5.0
+  writers:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/console.py:75
+    console:
+      module: jaqmc.writer.console:ConsoleWriter
+      interval: 1
+      fields: pmove:.2f,energy=total_energy:.4f,variance=total_energy_var:.4f
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/hdf5.py:28
+    hdf5:
+      module: jaqmc.writer.hdf5:HDF5Writer
+      path_template: '{stage}_stats.h5'
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/writer/csv.py:21
+    csv:
+      module: jaqmc.writer.csv:CSVWriter
+      path_template: '{stage}_stats.csv'
+estimators:
+  energy:
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/kinetic/euclidean.py:28
+    kinetic:
+      vmap_chunk_size: null
+      mode: forward_laplacian
+      sparsity_threshold: 0
+    # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/ecp/estimator.py:32
+    ecp:
+      vmap_chunk_size: null
+      max_core: 2
+      quadrature_id: null
+      electrons_field: electrons
+      atoms_field: atoms
+  enabled:
+    spin: false
+    density: true
+  # Defined in /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/estimator/density/fractional.py:30
+  density:
+    axes:
+      a:
+        lattice_index: 0
+        bins: 100
+      b: null
+      c: null
+I | 06-21 02:55:37 |  config  | Current config is the same as that of previous run.
+I | 06-21 02:55:37 | workflow | Starting QMC with 1 local XLA devices across 1 processes.
+I | 06-21 02:55:37 |  jaqmc   | Start KRHF
+
+WARN: Even tempered Gaussians are generated as DF auxbasis for  Sc
+
+
+WARN: HOMO -0.197698803955 == LUMO -0.197698692064
+
+converged SCF energy = -46.7741684678224
+I | 06-21 03:56:22 |  jaqmc   | Complete KRHF
+I | 06-21 03:56:30 | pretrain | Start 1000 pretrain steps.
+I | 06-21 03:56:30 |  jaqmc   | Start burn in 100 steps.
+I | 06-21 03:56:32 |  jaqmc   | Burn in 100 steps complete.
+I | 06-21 04:11:13 | pretrain | step=0, loss=0.0690
+I | 06-21 04:11:27 | pretrain | step=1, loss=0.0341
+I | 06-21 04:11:40 | pretrain | step=2, loss=0.0200
+I | 06-21 04:11:51 | pretrain | step=3, loss=0.0155
+I | 06-21 04:12:04 | pretrain | step=4, loss=0.0140
+I | 06-21 04:12:16 | pretrain | step=5, loss=0.0130
+I | 06-21 04:12:29 | pretrain | step=6, loss=0.0118
+I | 06-21 04:12:41 | pretrain | step=7, loss=0.0107
+I | 06-21 04:12:54 | pretrain | step=8, loss=0.0096
+I | 06-21 04:13:06 | pretrain | step=9, loss=0.0086
+I | 06-21 04:13:17 | pretrain | step=10, loss=0.0078
+I | 06-21 04:13:30 | pretrain | step=11, loss=0.0071
+I | 06-21 04:13:42 | pretrain | step=12, loss=0.0065
+I | 06-21 04:13:54 | pretrain | step=13, loss=0.0060
+I | 06-21 04:14:07 | pretrain | step=14, loss=0.0056
+I | 06-21 04:14:19 | pretrain | step=15, loss=0.0052
+I | 06-21 04:14:32 | pretrain | step=16, loss=0.0050
+I | 06-21 04:14:44 | pretrain | step=17, loss=0.0047
+I | 06-21 04:14:57 | pretrain | step=18, loss=0.0045
+I | 06-21 04:15:10 | pretrain | step=19, loss=0.0043
+I | 06-21 04:15:22 | pretrain | step=20, loss=0.0041
+I | 06-21 04:15:36 | pretrain | step=21, loss=0.0040
+I | 06-21 04:15:48 | pretrain | step=22, loss=0.0038
+I | 06-21 04:16:02 | pretrain | step=23, loss=0.0036
+I | 06-21 04:16:15 | pretrain | step=24, loss=0.0035
+I | 06-21 04:16:28 | pretrain | step=25, loss=0.0034
+I | 06-21 04:16:40 | pretrain | step=26, loss=0.0033
+I | 06-21 04:16:52 | pretrain | step=27, loss=0.0032
+I | 06-21 04:17:05 | pretrain | step=28, loss=0.0031
+I | 06-21 04:17:17 | pretrain | step=29, loss=0.0030
+I | 06-21 04:17:29 | pretrain | step=30, loss=0.0029
+I | 06-21 04:17:41 | pretrain | step=31, loss=0.0029
+I | 06-21 04:17:54 | pretrain | step=32, loss=0.0028
+I | 06-21 04:18:06 | pretrain | step=33, loss=0.0027
+I | 06-21 04:18:18 | pretrain | step=34, loss=0.0027
+I | 06-21 04:18:29 | pretrain | step=35, loss=0.0026
+I | 06-21 04:18:42 | pretrain | step=36, loss=0.0025
+I | 06-21 04:18:54 | pretrain | step=37, loss=0.0025
+I | 06-21 04:19:07 | pretrain | step=38, loss=0.0024
+I | 06-21 04:19:20 | pretrain | step=39, loss=0.0024
+I | 06-21 04:19:32 | pretrain | step=40, loss=0.0023
+I | 06-21 04:19:43 | pretrain | step=41, loss=0.0023
+I | 06-21 04:19:56 | pretrain | step=42, loss=0.0022
+I | 06-21 04:20:07 | pretrain | step=43, loss=0.0022
+I | 06-21 04:20:20 | pretrain | step=44, loss=0.0022
+I | 06-21 04:20:32 | pretrain | step=45, loss=0.0022
+I | 06-21 04:20:44 | pretrain | step=46, loss=0.0021
+I | 06-21 04:20:57 | pretrain | step=47, loss=0.0021
+I | 06-21 04:21:10 | pretrain | step=48, loss=0.0021
+I | 06-21 04:21:22 | pretrain | step=49, loss=0.0021
+I | 06-21 04:21:34 | pretrain | step=50, loss=0.0020
+I | 06-21 04:21:47 | pretrain | step=51, loss=0.0020
+I | 06-21 04:21:58 | pretrain | step=52, loss=0.0020
+I | 06-21 04:22:10 | pretrain | step=53, loss=0.0020
+I | 06-21 04:22:23 | pretrain | step=54, loss=0.0020
+I | 06-21 04:22:35 | pretrain | step=55, loss=0.0019
+I | 06-21 04:22:47 | pretrain | step=56, loss=0.0019
+I | 06-21 04:22:59 | pretrain | step=57, loss=0.0019
+I | 06-21 04:23:11 | pretrain | step=58, loss=0.0019
+I | 06-21 04:23:24 | pretrain | step=59, loss=0.0019
+I | 06-21 04:23:36 | pretrain | step=60, loss=0.0018
+I | 06-21 04:23:48 | pretrain | step=61, loss=0.0019
+I | 06-21 04:24:00 | pretrain | step=62, loss=0.0018
+I | 06-21 04:24:12 | pretrain | step=63, loss=0.0018
+I | 06-21 04:24:24 | pretrain | step=64, loss=0.0018
+I | 06-21 04:24:36 | pretrain | step=65, loss=0.0018
+I | 06-21 04:24:49 | pretrain | step=66, loss=0.0018
+I | 06-21 04:25:01 | pretrain | step=67, loss=0.0018
+I | 06-21 04:25:13 | pretrain | step=68, loss=0.0018
+I | 06-21 04:25:26 | pretrain | step=69, loss=0.0018
+I | 06-21 04:25:38 | pretrain | step=70, loss=0.0017
+I | 06-21 04:25:50 | pretrain | step=71, loss=0.0017
+I | 06-21 04:26:02 | pretrain | step=72, loss=0.0017
+I | 06-21 04:26:14 | pretrain | step=73, loss=0.0017
+I | 06-21 04:26:27 | pretrain | step=74, loss=0.0017
+I | 06-21 04:26:39 | pretrain | step=75, loss=0.0017
+I | 06-21 04:26:52 | pretrain | step=76, loss=0.0017
+I | 06-21 04:27:04 | pretrain | step=77, loss=0.0017
+I | 06-21 04:27:16 | pretrain | step=78, loss=0.0016
+I | 06-21 04:27:29 | pretrain | step=79, loss=0.0016
+I | 06-21 04:27:42 | pretrain | step=80, loss=0.0016
+I | 06-21 04:27:54 | pretrain | step=81, loss=0.0016
+I | 06-21 04:28:06 | pretrain | step=82, loss=0.0016
+I | 06-21 04:28:18 | pretrain | step=83, loss=0.0016
+I | 06-21 04:28:31 | pretrain | step=84, loss=0.0016
+I | 06-21 04:28:44 | pretrain | step=85, loss=0.0016
+I | 06-21 04:28:57 | pretrain | step=86, loss=0.0016
+I | 06-21 04:29:09 | pretrain | step=87, loss=0.0016
+I | 06-21 04:29:21 | pretrain | step=88, loss=0.0016
+I | 06-21 04:29:33 | pretrain | step=89, loss=0.0016
+I | 06-21 04:29:46 | pretrain | step=90, loss=0.0015
+I | 06-21 04:29:58 | pretrain | step=91, loss=0.0016
+I | 06-21 04:30:11 | pretrain | step=92, loss=0.0015
+I | 06-21 04:30:23 | pretrain | step=93, loss=0.0015
+I | 06-21 04:30:36 | pretrain | step=94, loss=0.0015
+I | 06-21 04:30:49 | pretrain | step=95, loss=0.0015
+I | 06-21 04:31:02 | pretrain | step=96, loss=0.0015
+I | 06-21 04:31:14 | pretrain | step=97, loss=0.0015
+I | 06-21 04:31:26 | pretrain | step=98, loss=0.0015
+I | 06-21 04:31:38 | pretrain | step=99, loss=0.0014
+I | 06-21 04:31:51 | pretrain | step=100, loss=0.0014
+I | 06-21 04:32:03 | pretrain | step=101, loss=0.0014
+I | 06-21 04:32:15 | pretrain | step=102, loss=0.0014
+I | 06-21 04:32:28 | pretrain | step=103, loss=0.0014
+I | 06-21 04:32:40 | pretrain | step=104, loss=0.0014
+I | 06-21 04:32:53 | pretrain | step=105, loss=0.0014
+I | 06-21 04:33:05 | pretrain | step=106, loss=0.0014
+I | 06-21 04:33:17 | pretrain | step=107, loss=0.0014
+I | 06-21 04:33:30 | pretrain | step=108, loss=0.0014
+I | 06-21 04:33:42 | pretrain | step=109, loss=0.0014
+I | 06-21 04:33:54 | pretrain | step=110, loss=0.0014
+I | 06-21 04:34:06 | pretrain | step=111, loss=0.0014
+I | 06-21 04:34:18 | pretrain | step=112, loss=0.0014
+I | 06-21 04:34:30 | pretrain | step=113, loss=0.0013
+I | 06-21 04:34:42 | pretrain | step=114, loss=0.0013
+I | 06-21 04:34:54 | pretrain | step=115, loss=0.0013
+I | 06-21 04:35:07 | pretrain | step=116, loss=0.0013
+I | 06-21 04:35:20 | pretrain | step=117, loss=0.0013
+I | 06-21 04:35:32 | pretrain | step=118, loss=0.0013
+I | 06-21 04:35:45 | pretrain | step=119, loss=0.0013
+I | 06-21 04:35:57 | pretrain | step=120, loss=0.0013
+I | 06-21 04:36:09 | pretrain | step=121, loss=0.0013
+I | 06-21 04:36:22 | pretrain | step=122, loss=0.0013
+I | 06-21 04:36:34 | pretrain | step=123, loss=0.0013
+I | 06-21 04:36:48 | pretrain | step=124, loss=0.0013
+I | 06-21 04:37:00 | pretrain | step=125, loss=0.0013
+I | 06-21 04:37:12 | pretrain | step=126, loss=0.0013
+I | 06-21 04:37:25 | pretrain | step=127, loss=0.0013
+I | 06-21 04:37:37 | pretrain | step=128, loss=0.0013
+I | 06-21 04:37:49 | pretrain | step=129, loss=0.0013
+I | 06-21 04:38:01 | pretrain | step=130, loss=0.0013
+I | 06-21 04:38:13 | pretrain | step=131, loss=0.0013
+I | 06-21 04:38:26 | pretrain | step=132, loss=0.0013
+I | 06-21 04:38:38 | pretrain | step=133, loss=0.0013
+I | 06-21 04:38:50 | pretrain | step=134, loss=0.0013
+I | 06-21 04:39:03 | pretrain | step=135, loss=0.0013
+I | 06-21 04:39:15 | pretrain | step=136, loss=0.0013
+I | 06-21 04:39:27 | pretrain | step=137, loss=0.0012
+I | 06-21 04:39:39 | pretrain | step=138, loss=0.0012
+I | 06-21 04:39:51 | pretrain | step=139, loss=0.0012
+I | 06-21 04:40:02 | pretrain | step=140, loss=0.0013
+I | 06-21 04:40:14 | pretrain | step=141, loss=0.0012
+I | 06-21 04:40:26 | pretrain | step=142, loss=0.0012
+I | 06-21 04:40:38 | pretrain | step=143, loss=0.0012
+I | 06-21 04:40:51 | pretrain | step=144, loss=0.0012
+I | 06-21 04:41:03 | pretrain | step=145, loss=0.0012
+I | 06-21 04:41:16 | pretrain | step=146, loss=0.0012
+I | 06-21 04:41:28 | pretrain | step=147, loss=0.0012
+I | 06-21 04:41:40 | pretrain | step=148, loss=0.0012
+I | 06-21 04:41:53 | pretrain | step=149, loss=0.0012
+I | 06-21 04:42:05 | pretrain | step=150, loss=0.0012
+I | 06-21 04:42:17 | pretrain | step=151, loss=0.0012
+I | 06-21 04:42:29 | pretrain | step=152, loss=0.0012
+I | 06-21 04:42:42 | pretrain | step=153, loss=0.0012
+I | 06-21 04:42:55 | pretrain | step=154, loss=0.0011
+I | 06-21 04:43:07 | pretrain | step=155, loss=0.0012
+I | 06-21 04:43:19 | pretrain | step=156, loss=0.0012
+I | 06-21 04:43:31 | pretrain | step=157, loss=0.0012
+I | 06-21 04:43:44 | pretrain | step=158, loss=0.0012
+I | 06-21 04:43:56 | pretrain | step=159, loss=0.0011
+I | 06-21 04:44:08 | pretrain | step=160, loss=0.0011
+I | 06-21 04:44:20 | pretrain | step=161, loss=0.0011
+I | 06-21 04:44:32 | pretrain | step=162, loss=0.0011
+I | 06-21 04:44:45 | pretrain | step=163, loss=0.0011
+I | 06-21 04:44:56 | pretrain | step=164, loss=0.0011
+I | 06-21 04:45:08 | pretrain | step=165, loss=0.0011
+I | 06-21 04:45:21 | pretrain | step=166, loss=0.0011
+I | 06-21 04:45:33 | pretrain | step=167, loss=0.0011
+I | 06-21 04:45:46 | pretrain | step=168, loss=0.0011
+I | 06-21 04:45:58 | pretrain | step=169, loss=0.0011
+I | 06-21 04:46:10 | pretrain | step=170, loss=0.0011
+I | 06-21 04:46:22 | pretrain | step=171, loss=0.0011
+I | 06-21 04:46:34 | pretrain | step=172, loss=0.0011
+I | 06-21 04:46:47 | pretrain | step=173, loss=0.0011
+I | 06-21 04:46:59 | pretrain | step=174, loss=0.0011
+I | 06-21 04:47:12 | pretrain | step=175, loss=0.0011
+I | 06-21 04:47:25 | pretrain | step=176, loss=0.0011
+I | 06-21 04:47:37 | pretrain | step=177, loss=0.0011
+I | 06-21 04:47:49 | pretrain | step=178, loss=0.0011
+I | 06-21 04:48:01 | pretrain | step=179, loss=0.0011
+I | 06-21 04:48:14 | pretrain | step=180, loss=0.0011
+I | 06-21 04:48:26 | pretrain | step=181, loss=0.0011
+I | 06-21 04:48:38 | pretrain | step=182, loss=0.0011
+I | 06-21 04:48:50 | pretrain | step=183, loss=0.0011
+I | 06-21 04:49:02 | pretrain | step=184, loss=0.0011
+I | 06-21 04:49:15 | pretrain | step=185, loss=0.0011
+I | 06-21 04:49:26 | pretrain | step=186, loss=0.0011
+I | 06-21 04:49:39 | pretrain | step=187, loss=0.0011
+I | 06-21 04:49:52 | pretrain | step=188, loss=0.0011
+I | 06-21 04:50:04 | pretrain | step=189, loss=0.0010
+I | 06-21 04:50:17 | pretrain | step=190, loss=0.0010
+I | 06-21 04:50:29 | pretrain | step=191, loss=0.0010
+I | 06-21 04:50:41 | pretrain | step=192, loss=0.0010
+I | 06-21 04:50:53 | pretrain | step=193, loss=0.0010
+I | 06-21 04:51:05 | pretrain | step=194, loss=0.0010
+I | 06-21 04:51:18 | pretrain | step=195, loss=0.0010
+I | 06-21 04:51:29 | pretrain | step=196, loss=0.0010
+I | 06-21 04:51:41 | pretrain | step=197, loss=0.0010
+I | 06-21 04:51:53 | pretrain | step=198, loss=0.0010
+I | 06-21 04:52:05 | pretrain | step=199, loss=0.0010
+I | 06-21 04:52:18 | pretrain | step=200, loss=0.0010
+I | 06-21 04:52:30 | pretrain | step=201, loss=0.0010
+I | 06-21 04:52:44 | pretrain | step=202, loss=0.0010
+I | 06-21 04:52:56 | pretrain | step=203, loss=0.0010
+I | 06-21 04:53:08 | pretrain | step=204, loss=0.0010
+I | 06-21 04:53:21 | pretrain | step=205, loss=0.0010
+I | 06-21 04:53:34 | pretrain | step=206, loss=0.0010
+I | 06-21 04:53:47 | pretrain | step=207, loss=0.0010
+I | 06-21 04:54:00 | pretrain | step=208, loss=0.0010
+I | 06-21 04:54:12 | pretrain | step=209, loss=0.0010
+I | 06-21 04:54:24 | pretrain | step=210, loss=0.0010
+I | 06-21 04:54:36 | pretrain | step=211, loss=0.0010
+I | 06-21 04:54:48 | pretrain | step=212, loss=0.0010
+I | 06-21 04:55:01 | pretrain | step=213, loss=0.0010
+I | 06-21 04:55:13 | pretrain | step=214, loss=0.0010
+I | 06-21 04:55:26 | pretrain | step=215, loss=0.0010
+I | 06-21 04:55:39 | pretrain | step=216, loss=0.0010
+I | 06-21 04:55:52 | pretrain | step=217, loss=0.0010
+I | 06-21 04:56:04 | pretrain | step=218, loss=0.0010
+I | 06-21 04:56:17 | pretrain | step=219, loss=0.0010
+I | 06-21 04:56:29 | pretrain | step=220, loss=0.0010
+I | 06-21 04:56:42 | pretrain | step=221, loss=0.0010
+I | 06-21 04:56:54 | pretrain | step=222, loss=0.0010
+I | 06-21 04:57:07 | pretrain | step=223, loss=0.0010
+I | 06-21 04:57:20 | pretrain | step=224, loss=0.0010
+I | 06-21 04:57:32 | pretrain | step=225, loss=0.0010
+I | 06-21 04:57:44 | pretrain | step=226, loss=0.0010
+I | 06-21 04:57:56 | pretrain | step=227, loss=0.0010
+I | 06-21 04:58:08 | pretrain | step=228, loss=0.0009
+I | 06-21 04:58:20 | pretrain | step=229, loss=0.0009
+I | 06-21 04:58:33 | pretrain | step=230, loss=0.0009
+I | 06-21 04:58:45 | pretrain | step=231, loss=0.0010
+I | 06-21 04:58:58 | pretrain | step=232, loss=0.0009
+I | 06-21 04:59:10 | pretrain | step=233, loss=0.0010
+I | 06-21 04:59:22 | pretrain | step=234, loss=0.0010
+I | 06-21 04:59:35 | pretrain | step=235, loss=0.0010
+I | 06-21 04:59:47 | pretrain | step=236, loss=0.0009
+I | 06-21 04:59:59 | pretrain | step=237, loss=0.0009
+I | 06-21 05:00:11 | pretrain | step=238, loss=0.0009
+I | 06-21 05:00:24 | pretrain | step=239, loss=0.0009
+I | 06-21 05:00:36 | pretrain | step=240, loss=0.0009
+I | 06-21 05:00:49 | pretrain | step=241, loss=0.0009
+I | 06-21 05:01:01 | pretrain | step=242, loss=0.0009
+I | 06-21 05:01:13 | pretrain | step=243, loss=0.0009
+I | 06-21 05:01:26 | pretrain | step=244, loss=0.0009
+I | 06-21 05:01:38 | pretrain | step=245, loss=0.0009
+I | 06-21 05:01:51 | pretrain | step=246, loss=0.0009
+I | 06-21 05:02:03 | pretrain | step=247, loss=0.0009
+I | 06-21 05:02:15 | pretrain | step=248, loss=0.0009
+I | 06-21 05:02:27 | pretrain | step=249, loss=0.0009
+I | 06-21 05:02:39 | pretrain | step=250, loss=0.0009
+I | 06-21 05:02:52 | pretrain | step=251, loss=0.0009
+I | 06-21 05:03:04 | pretrain | step=252, loss=0.0009
+I | 06-21 05:03:15 | pretrain | step=253, loss=0.0009
+I | 06-21 05:03:28 | pretrain | step=254, loss=0.0009
+I | 06-21 05:03:39 | pretrain | step=255, loss=0.0009
+I | 06-21 05:03:51 | pretrain | step=256, loss=0.0009
+I | 06-21 05:04:02 | pretrain | step=257, loss=0.0009
+I | 06-21 05:04:14 | pretrain | step=258, loss=0.0009
+I | 06-21 05:04:26 | pretrain | step=259, loss=0.0009
+I | 06-21 05:04:39 | pretrain | step=260, loss=0.0009
+I | 06-21 05:04:51 | pretrain | step=261, loss=0.0009
+I | 06-21 05:05:03 | pretrain | step=262, loss=0.0009
+I | 06-21 05:05:15 | pretrain | step=263, loss=0.0009
+I | 06-21 05:05:28 | pretrain | step=264, loss=0.0009
+I | 06-21 05:05:39 | pretrain | step=265, loss=0.0009
+I | 06-21 05:05:51 | pretrain | step=266, loss=0.0009
+I | 06-21 05:06:03 | pretrain | step=267, loss=0.0009
+I | 06-21 05:06:15 | pretrain | step=268, loss=0.0009
+I | 06-21 05:06:27 | pretrain | step=269, loss=0.0009
+I | 06-21 05:06:40 | pretrain | step=270, loss=0.0009
+I | 06-21 05:06:53 | pretrain | step=271, loss=0.0009
+I | 06-21 05:07:06 | pretrain | step=272, loss=0.0009
+I | 06-21 05:07:18 | pretrain | step=273, loss=0.0009
+I | 06-21 05:07:31 | pretrain | step=274, loss=0.0009
+I | 06-21 05:07:44 | pretrain | step=275, loss=0.0009
+I | 06-21 05:07:57 | pretrain | step=276, loss=0.0009
+I | 06-21 05:08:09 | pretrain | step=277, loss=0.0009
+I | 06-21 05:08:21 | pretrain | step=278, loss=0.0009
+I | 06-21 05:08:33 | pretrain | step=279, loss=0.0009
+I | 06-21 05:08:45 | pretrain | step=280, loss=0.0009
+I | 06-21 05:08:58 | pretrain | step=281, loss=0.0009
+I | 06-21 05:09:10 | pretrain | step=282, loss=0.0009
+I | 06-21 05:09:22 | pretrain | step=283, loss=0.0009
+I | 06-21 05:09:35 | pretrain | step=284, loss=0.0009
+I | 06-21 05:09:48 | pretrain | step=285, loss=0.0009
+I | 06-21 05:09:59 | pretrain | step=286, loss=0.0009
+I | 06-21 05:10:12 | pretrain | step=287, loss=0.0009
+I | 06-21 05:10:24 | pretrain | step=288, loss=0.0009
+I | 06-21 05:10:36 | pretrain | step=289, loss=0.0009
+I | 06-21 05:10:48 | pretrain | step=290, loss=0.0009
+I | 06-21 05:11:00 | pretrain | step=291, loss=0.0009
+I | 06-21 05:11:12 | pretrain | step=292, loss=0.0009
+I | 06-21 05:11:24 | pretrain | step=293, loss=0.0009
+I | 06-21 05:11:37 | pretrain | step=294, loss=0.0009
+I | 06-21 05:11:50 | pretrain | step=295, loss=0.0009
+I | 06-21 05:12:01 | pretrain | step=296, loss=0.0009
+I | 06-21 05:12:14 | pretrain | step=297, loss=0.0009
+I | 06-21 05:12:26 | pretrain | step=298, loss=0.0009
+I | 06-21 05:12:38 | pretrain | step=299, loss=0.0009
+I | 06-21 05:12:50 | pretrain | step=300, loss=0.0009
+I | 06-21 05:13:03 | pretrain | step=301, loss=0.0009
+I | 06-21 05:13:15 | pretrain | step=302, loss=0.0009
+I | 06-21 05:13:27 | pretrain | step=303, loss=0.0009
+I | 06-21 05:13:39 | pretrain | step=304, loss=0.0009
+I | 06-21 05:13:51 | pretrain | step=305, loss=0.0009
+I | 06-21 05:14:04 | pretrain | step=306, loss=0.0009
+I | 06-21 05:14:16 | pretrain | step=307, loss=0.0009
+I | 06-21 05:14:28 | pretrain | step=308, loss=0.0009
+I | 06-21 05:14:40 | pretrain | step=309, loss=0.0009
+I | 06-21 05:14:52 | pretrain | step=310, loss=0.0009
+I | 06-21 05:15:04 | pretrain | step=311, loss=0.0009
+I | 06-21 05:15:16 | pretrain | step=312, loss=0.0009
+I | 06-21 05:15:28 | pretrain | step=313, loss=0.0009
+I | 06-21 05:15:39 | pretrain | step=314, loss=0.0009
+I | 06-21 05:15:53 | pretrain | step=315, loss=0.0008
+I | 06-21 05:16:05 | pretrain | step=316, loss=0.0009
+I | 06-21 05:16:17 | pretrain | step=317, loss=0.0008
+I | 06-21 05:16:30 | pretrain | step=318, loss=0.0009
+I | 06-21 05:16:43 | pretrain | step=319, loss=0.0009
+I | 06-21 05:16:55 | pretrain | step=320, loss=0.0009
+I | 06-21 05:17:08 | pretrain | step=321, loss=0.0009
+I | 06-21 05:17:20 | pretrain | step=322, loss=0.0009
+I | 06-21 05:17:32 | pretrain | step=323, loss=0.0009
+I | 06-21 05:17:43 | pretrain | step=324, loss=0.0009
+I | 06-21 05:17:56 | pretrain | step=325, loss=0.0009
+I | 06-21 05:18:07 | pretrain | step=326, loss=0.0009
+I | 06-21 05:18:19 | pretrain | step=327, loss=0.0009
+I | 06-21 05:18:32 | pretrain | step=328, loss=0.0008
+I | 06-21 05:18:44 | pretrain | step=329, loss=0.0008
+I | 06-21 05:18:56 | pretrain | step=330, loss=0.0008
+I | 06-21 05:19:09 | pretrain | step=331, loss=0.0008
+I | 06-21 05:19:22 | pretrain | step=332, loss=0.0009
+I | 06-21 05:19:34 | pretrain | step=333, loss=0.0009
+I | 06-21 05:19:47 | pretrain | step=334, loss=0.0008
+I | 06-21 05:20:00 | pretrain | step=335, loss=0.0008
+I | 06-21 05:20:14 | pretrain | step=336, loss=0.0008
+I | 06-21 05:20:26 | pretrain | step=337, loss=0.0009
+I | 06-21 05:20:39 | pretrain | step=338, loss=0.0009
+I | 06-21 05:20:51 | pretrain | step=339, loss=0.0008
+I | 06-21 05:21:03 | pretrain | step=340, loss=0.0008
+I | 06-21 05:21:16 | pretrain | step=341, loss=0.0008
+I | 06-21 05:21:28 | pretrain | step=342, loss=0.0008
+I | 06-21 05:21:40 | pretrain | step=343, loss=0.0008
+I | 06-21 05:21:53 | pretrain | step=344, loss=0.0008
+I | 06-21 05:22:06 | pretrain | step=345, loss=0.0009
+I | 06-21 05:22:17 | pretrain | step=346, loss=0.0009
+I | 06-21 05:22:30 | pretrain | step=347, loss=0.0008
+I | 06-21 05:22:42 | pretrain | step=348, loss=0.0008
+I | 06-21 05:22:55 | pretrain | step=349, loss=0.0008
+I | 06-21 05:23:07 | pretrain | step=350, loss=0.0008
+I | 06-21 05:23:19 | pretrain | step=351, loss=0.0008
+I | 06-21 05:23:31 | pretrain | step=352, loss=0.0008
+I | 06-21 05:23:43 | pretrain | step=353, loss=0.0008
+I | 06-21 05:23:55 | pretrain | step=354, loss=0.0008
+I | 06-21 05:24:06 | pretrain | step=355, loss=0.0008
+I | 06-21 05:24:19 | pretrain | step=356, loss=0.0008
+I | 06-21 05:24:32 | pretrain | step=357, loss=0.0008
+I | 06-21 05:24:43 | pretrain | step=358, loss=0.0008
+I | 06-21 05:24:55 | pretrain | step=359, loss=0.0008
+I | 06-21 05:25:08 | pretrain | step=360, loss=0.0008
+I | 06-21 05:25:20 | pretrain | step=361, loss=0.0008
+I | 06-21 05:25:31 | pretrain | step=362, loss=0.0008
+I | 06-21 05:25:44 | pretrain | step=363, loss=0.0008
+I | 06-21 05:25:57 | pretrain | step=364, loss=0.0008
+I | 06-21 05:26:09 | pretrain | step=365, loss=0.0008
+I | 06-21 05:26:23 | pretrain | step=366, loss=0.0008
+I | 06-21 05:26:35 | pretrain | step=367, loss=0.0008
+I | 06-21 05:26:46 | pretrain | step=368, loss=0.0008
+I | 06-21 05:26:58 | pretrain | step=369, loss=0.0008
+I | 06-21 05:27:10 | pretrain | step=370, loss=0.0008
+I | 06-21 05:27:22 | pretrain | step=371, loss=0.0008
+I | 06-21 05:27:34 | pretrain | step=372, loss=0.0008
+I | 06-21 05:27:46 | pretrain | step=373, loss=0.0008
+I | 06-21 05:27:58 | pretrain | step=374, loss=0.0008
+I | 06-21 05:28:10 | pretrain | step=375, loss=0.0008
+I | 06-21 05:28:23 | pretrain | step=376, loss=0.0008
+I | 06-21 05:28:35 | pretrain | step=377, loss=0.0008
+I | 06-21 05:28:47 | pretrain | step=378, loss=0.0008
+I | 06-21 05:29:00 | pretrain | step=379, loss=0.0008
+I | 06-21 05:29:12 | pretrain | step=380, loss=0.0008
+I | 06-21 05:29:24 | pretrain | step=381, loss=0.0008
+I | 06-21 05:29:36 | pretrain | step=382, loss=0.0008
+I | 06-21 05:29:49 | pretrain | step=383, loss=0.0008
+I | 06-21 05:30:02 | pretrain | step=384, loss=0.0009
+I | 06-21 05:30:13 | pretrain | step=385, loss=0.0008
+I | 06-21 05:30:24 | pretrain | step=386, loss=0.0008
+I | 06-21 05:30:37 | pretrain | step=387, loss=0.0008
+I | 06-21 05:30:49 | pretrain | step=388, loss=0.0008
+I | 06-21 05:31:01 | pretrain | step=389, loss=0.0008
+I | 06-21 05:31:13 | pretrain | step=390, loss=0.0008
+I | 06-21 05:31:25 | pretrain | step=391, loss=0.0008
+I | 06-21 05:31:37 | pretrain | step=392, loss=0.0008
+I | 06-21 05:31:50 | pretrain | step=393, loss=0.0008
+I | 06-21 05:32:02 | pretrain | step=394, loss=0.0008
+I | 06-21 05:32:14 | pretrain | step=395, loss=0.0008
+I | 06-21 05:32:26 | pretrain | step=396, loss=0.0008
+I | 06-21 05:32:38 | pretrain | step=397, loss=0.0008
+I | 06-21 05:32:51 | pretrain | step=398, loss=0.0008
+I | 06-21 05:33:03 | pretrain | step=399, loss=0.0008
+I | 06-21 05:33:17 | pretrain | step=400, loss=0.0008
+I | 06-21 05:33:29 | pretrain | step=401, loss=0.0008
+I | 06-21 05:33:41 | pretrain | step=402, loss=0.0008
+I | 06-21 05:33:53 | pretrain | step=403, loss=0.0008
+I | 06-21 05:34:06 | pretrain | step=404, loss=0.0008
+I | 06-21 05:34:18 | pretrain | step=405, loss=0.0008
+I | 06-21 05:34:30 | pretrain | step=406, loss=0.0008
+I | 06-21 05:34:42 | pretrain | step=407, loss=0.0008
+I | 06-21 05:34:54 | pretrain | step=408, loss=0.0008
+I | 06-21 05:35:06 | pretrain | step=409, loss=0.0008
+I | 06-21 05:35:18 | pretrain | step=410, loss=0.0008
+I | 06-21 05:35:31 | pretrain | step=411, loss=0.0008
+I | 06-21 05:35:43 | pretrain | step=412, loss=0.0008
+I | 06-21 05:35:56 | pretrain | step=413, loss=0.0008
+I | 06-21 05:36:08 | pretrain | step=414, loss=0.0008
+I | 06-21 05:36:21 | pretrain | step=415, loss=0.0008
+I | 06-21 05:36:33 | pretrain | step=416, loss=0.0008
+I | 06-21 05:36:45 | pretrain | step=417, loss=0.0008
+I | 06-21 05:36:56 | pretrain | step=418, loss=0.0008
+I | 06-21 05:37:09 | pretrain | step=419, loss=0.0008
+I | 06-21 05:37:21 | pretrain | step=420, loss=0.0008
+I | 06-21 05:37:34 | pretrain | step=421, loss=0.0008
+I | 06-21 05:37:46 | pretrain | step=422, loss=0.0008
+I | 06-21 05:37:58 | pretrain | step=423, loss=0.0008
+I | 06-21 05:38:10 | pretrain | step=424, loss=0.0008
+I | 06-21 05:38:22 | pretrain | step=425, loss=0.0008
+I | 06-21 05:38:33 | pretrain | step=426, loss=0.0008
+I | 06-21 05:38:46 | pretrain | step=427, loss=0.0008
+I | 06-21 05:38:59 | pretrain | step=428, loss=0.0008
+I | 06-21 05:39:11 | pretrain | step=429, loss=0.0008
+I | 06-21 05:39:23 | pretrain | step=430, loss=0.0008
+I | 06-21 05:39:35 | pretrain | step=431, loss=0.0008
+I | 06-21 05:39:47 | pretrain | step=432, loss=0.0008
+I | 06-21 05:40:00 | pretrain | step=433, loss=0.0008
+I | 06-21 05:40:11 | pretrain | step=434, loss=0.0008
+I | 06-21 05:40:23 | pretrain | step=435, loss=0.0008
+I | 06-21 05:40:35 | pretrain | step=436, loss=0.0008
+I | 06-21 05:40:47 | pretrain | step=437, loss=0.0008
+I | 06-21 05:41:00 | pretrain | step=438, loss=0.0008
+I | 06-21 05:41:12 | pretrain | step=439, loss=0.0008
+I | 06-21 05:41:24 | pretrain | step=440, loss=0.0008
+I | 06-21 05:41:36 | pretrain | step=441, loss=0.0008
+I | 06-21 05:41:47 | pretrain | step=442, loss=0.0008
+I | 06-21 05:41:59 | pretrain | step=443, loss=0.0008
+I | 06-21 05:42:12 | pretrain | step=444, loss=0.0008
+I | 06-21 05:42:25 | pretrain | step=445, loss=0.0008
+I | 06-21 05:42:37 | pretrain | step=446, loss=0.0008
+I | 06-21 05:42:50 | pretrain | step=447, loss=0.0008
+I | 06-21 05:43:02 | pretrain | step=448, loss=0.0008
+I | 06-21 05:43:14 | pretrain | step=449, loss=0.0008
+I | 06-21 05:43:26 | pretrain | step=450, loss=0.0008
+I | 06-21 05:43:38 | pretrain | step=451, loss=0.0008
+I | 06-21 05:43:51 | pretrain | step=452, loss=0.0008
+I | 06-21 05:44:03 | pretrain | step=453, loss=0.0008
+I | 06-21 05:44:14 | pretrain | step=454, loss=0.0008
+I | 06-21 05:44:26 | pretrain | step=455, loss=0.0008
+I | 06-21 05:44:39 | pretrain | step=456, loss=0.0008
+I | 06-21 05:44:52 | pretrain | step=457, loss=0.0008
+I | 06-21 05:45:04 | pretrain | step=458, loss=0.0008
+I | 06-21 05:45:15 | pretrain | step=459, loss=0.0008
+I | 06-21 05:45:28 | pretrain | step=460, loss=0.0008
+I | 06-21 05:45:40 | pretrain | step=461, loss=0.0008
+I | 06-21 05:45:52 | pretrain | step=462, loss=0.0008
+I | 06-21 05:46:04 | pretrain | step=463, loss=0.0008
+I | 06-21 05:46:17 | pretrain | step=464, loss=0.0008
+I | 06-21 05:46:29 | pretrain | step=465, loss=0.0008
+I | 06-21 05:46:42 | pretrain | step=466, loss=0.0008
+I | 06-21 05:46:54 | pretrain | step=467, loss=0.0008
+I | 06-21 05:47:07 | pretrain | step=468, loss=0.0008
+I | 06-21 05:47:19 | pretrain | step=469, loss=0.0008
+I | 06-21 05:47:30 | pretrain | step=470, loss=0.0008
+I | 06-21 05:47:42 | pretrain | step=471, loss=0.0008
+I | 06-21 05:47:54 | pretrain | step=472, loss=0.0008
+I | 06-21 05:48:07 | pretrain | step=473, loss=0.0008
+I | 06-21 05:48:19 | pretrain | step=474, loss=0.0008
+I | 06-21 05:48:31 | pretrain | step=475, loss=0.0008
+I | 06-21 05:48:43 | pretrain | step=476, loss=0.0008
+I | 06-21 05:48:57 | pretrain | step=477, loss=0.0008
+I | 06-21 05:49:09 | pretrain | step=478, loss=0.0008
+I | 06-21 05:49:22 | pretrain | step=479, loss=0.0008
+I | 06-21 05:49:34 | pretrain | step=480, loss=0.0008
+I | 06-21 05:49:46 | pretrain | step=481, loss=0.0008
+I | 06-21 05:50:00 | pretrain | step=482, loss=0.0008
+I | 06-21 05:50:12 | pretrain | step=483, loss=0.0008
+I | 06-21 05:50:24 | pretrain | step=484, loss=0.0008
+I | 06-21 05:50:37 | pretrain | step=485, loss=0.0008
+I | 06-21 05:50:49 | pretrain | step=486, loss=0.0008
+I | 06-21 05:51:02 | pretrain | step=487, loss=0.0008
+I | 06-21 05:51:14 | pretrain | step=488, loss=0.0008
+I | 06-21 05:51:26 | pretrain | step=489, loss=0.0008
+I | 06-21 05:51:38 | pretrain | step=490, loss=0.0008
+I | 06-21 05:51:49 | pretrain | step=491, loss=0.0008
+I | 06-21 05:52:01 | pretrain | step=492, loss=0.0008
+I | 06-21 05:52:13 | pretrain | step=493, loss=0.0008
+I | 06-21 05:52:26 | pretrain | step=494, loss=0.0008
+I | 06-21 05:52:37 | pretrain | step=495, loss=0.0008
+I | 06-21 05:52:50 | pretrain | step=496, loss=0.0008
+I | 06-21 05:53:02 | pretrain | step=497, loss=0.0008
+I | 06-21 05:53:14 | pretrain | step=498, loss=0.0008
+I | 06-21 05:53:26 | pretrain | step=499, loss=0.0008
+I | 06-21 05:53:39 | pretrain | step=500, loss=0.0008
+I | 06-21 05:53:51 | pretrain | step=501, loss=0.0008
+I | 06-21 05:54:03 | pretrain | step=502, loss=0.0008
+I | 06-21 05:54:16 | pretrain | step=503, loss=0.0008
+I | 06-21 05:54:28 | pretrain | step=504, loss=0.0008
+I | 06-21 05:54:39 | pretrain | step=505, loss=0.0008
+I | 06-21 05:54:53 | pretrain | step=506, loss=0.0008
+I | 06-21 05:55:04 | pretrain | step=507, loss=0.0008
+I | 06-21 05:55:16 | pretrain | step=508, loss=0.0008
+I | 06-21 05:55:28 | pretrain | step=509, loss=0.0008
+I | 06-21 05:55:41 | pretrain | step=510, loss=0.0008
+I | 06-21 05:55:53 | pretrain | step=511, loss=0.0008
+I | 06-21 05:56:04 | pretrain | step=512, loss=0.0008
+I | 06-21 05:56:16 | pretrain | step=513, loss=0.0008
+I | 06-21 05:56:29 | pretrain | step=514, loss=0.0008
+I | 06-21 05:56:41 | pretrain | step=515, loss=0.0008
+I | 06-21 05:56:53 | pretrain | step=516, loss=0.0008
+I | 06-21 05:57:06 | pretrain | step=517, loss=0.0008
+I | 06-21 05:57:18 | pretrain | step=518, loss=0.0008
+I | 06-21 05:57:30 | pretrain | step=519, loss=0.0008
+I | 06-21 05:57:42 | pretrain | step=520, loss=0.0008
+I | 06-21 05:57:54 | pretrain | step=521, loss=0.0008
+I | 06-21 05:58:06 | pretrain | step=522, loss=0.0008
+I | 06-21 05:58:19 | pretrain | step=523, loss=0.0008
+I | 06-21 05:58:31 | pretrain | step=524, loss=0.0008
+I | 06-21 05:58:42 | pretrain | step=525, loss=0.0008
+I | 06-21 05:58:55 | pretrain | step=526, loss=0.0008
+I | 06-21 05:59:07 | pretrain | step=527, loss=0.0008
+I | 06-21 05:59:19 | pretrain | step=528, loss=0.0008
+I | 06-21 05:59:30 | pretrain | step=529, loss=0.0008
+I | 06-21 05:59:43 | pretrain | step=530, loss=0.0008
+I | 06-21 05:59:56 | pretrain | step=531, loss=0.0008
+I | 06-21 06:00:08 | pretrain | step=532, loss=0.0008
+I | 06-21 06:00:20 | pretrain | step=533, loss=0.0008
+I | 06-21 06:00:33 | pretrain | step=534, loss=0.0008
+I | 06-21 06:00:45 | pretrain | step=535, loss=0.0008
+I | 06-21 06:00:58 | pretrain | step=536, loss=0.0008
+I | 06-21 06:01:10 | pretrain | step=537, loss=0.0008
+I | 06-21 06:01:23 | pretrain | step=538, loss=0.0008
+I | 06-21 06:01:34 | pretrain | step=539, loss=0.0008
+I | 06-21 06:01:46 | pretrain | step=540, loss=0.0008
+I | 06-21 06:01:59 | pretrain | step=541, loss=0.0008
+I | 06-21 06:02:11 | pretrain | step=542, loss=0.0008
+I | 06-21 06:02:24 | pretrain | step=543, loss=0.0008
+I | 06-21 06:02:37 | pretrain | step=544, loss=0.0008
+I | 06-21 06:02:50 | pretrain | step=545, loss=0.0008
+I | 06-21 06:03:02 | pretrain | step=546, loss=0.0008
+I | 06-21 06:03:14 | pretrain | step=547, loss=0.0008
+I | 06-21 06:03:27 | pretrain | step=548, loss=0.0008
+I | 06-21 06:03:39 | pretrain | step=549, loss=0.0008
+I | 06-21 06:03:51 | pretrain | step=550, loss=0.0008
+I | 06-21 06:04:04 | pretrain | step=551, loss=0.0008
+I | 06-21 06:04:16 | pretrain | step=552, loss=0.0008
+I | 06-21 06:04:28 | pretrain | step=553, loss=0.0008
+I | 06-21 06:04:40 | pretrain | step=554, loss=0.0008
+I | 06-21 06:04:53 | pretrain | step=555, loss=0.0008
+I | 06-21 06:05:05 | pretrain | step=556, loss=0.0008
+I | 06-21 06:05:17 | pretrain | step=557, loss=0.0008
+I | 06-21 06:05:30 | pretrain | step=558, loss=0.0008
+I | 06-21 06:05:42 | pretrain | step=559, loss=0.0008
+I | 06-21 06:05:54 | pretrain | step=560, loss=0.0008
+I | 06-21 06:06:07 | pretrain | step=561, loss=0.0008
+I | 06-21 06:06:19 | pretrain | step=562, loss=0.0008
+I | 06-21 06:06:31 | pretrain | step=563, loss=0.0008
+I | 06-21 06:06:44 | pretrain | step=564, loss=0.0008
+I | 06-21 06:06:56 | pretrain | step=565, loss=0.0008
+I | 06-21 06:07:10 | pretrain | step=566, loss=0.0008
+I | 06-21 06:07:22 | pretrain | step=567, loss=0.0008
+I | 06-21 06:07:34 | pretrain | step=568, loss=0.0008
+I | 06-21 06:07:47 | pretrain | step=569, loss=0.0008
+I | 06-21 06:07:59 | pretrain | step=570, loss=0.0008
+I | 06-21 06:08:11 | pretrain | step=571, loss=0.0008
+I | 06-21 06:08:23 | pretrain | step=572, loss=0.0008
+I | 06-21 06:08:36 | pretrain | step=573, loss=0.0008
+I | 06-21 06:08:48 | pretrain | step=574, loss=0.0008
+I | 06-21 06:09:00 | pretrain | step=575, loss=0.0008
+I | 06-21 06:09:13 | pretrain | step=576, loss=0.0008
+I | 06-21 06:09:26 | pretrain | step=577, loss=0.0008
+I | 06-21 06:09:38 | pretrain | step=578, loss=0.0008
+I | 06-21 06:09:51 | pretrain | step=579, loss=0.0008
+I | 06-21 06:10:03 | pretrain | step=580, loss=0.0008
+I | 06-21 06:10:15 | pretrain | step=581, loss=0.0008
+I | 06-21 06:10:27 | pretrain | step=582, loss=0.0007
+I | 06-21 06:10:40 | pretrain | step=583, loss=0.0008
+I | 06-21 06:10:54 | pretrain | step=584, loss=0.0008
+I | 06-21 06:11:06 | pretrain | step=585, loss=0.0008
+I | 06-21 06:11:18 | pretrain | step=586, loss=0.0008
+I | 06-21 06:11:32 | pretrain | step=587, loss=0.0008
+I | 06-21 06:11:44 | pretrain | step=588, loss=0.0008
+I | 06-21 06:11:57 | pretrain | step=589, loss=0.0008
+I | 06-21 06:12:10 | pretrain | step=590, loss=0.0008
+I | 06-21 06:12:22 | pretrain | step=591, loss=0.0008
+I | 06-21 06:12:34 | pretrain | step=592, loss=0.0008
+I | 06-21 06:12:46 | pretrain | step=593, loss=0.0008
+I | 06-21 06:12:58 | pretrain | step=594, loss=0.0008
+I | 06-21 06:13:10 | pretrain | step=595, loss=0.0008
+I | 06-21 06:13:22 | pretrain | step=596, loss=0.0008
+I | 06-21 06:13:35 | pretrain | step=597, loss=0.0008
+I | 06-21 06:13:47 | pretrain | step=598, loss=0.0008
+I | 06-21 06:13:59 | pretrain | step=599, loss=0.0008
+I | 06-21 06:14:11 | pretrain | step=600, loss=0.0008
+I | 06-21 06:14:23 | pretrain | step=601, loss=0.0008
+I | 06-21 06:14:37 | pretrain | step=602, loss=0.0008
+I | 06-21 06:14:50 | pretrain | step=603, loss=0.0008
+I | 06-21 06:15:02 | pretrain | step=604, loss=0.0008
+I | 06-21 06:15:14 | pretrain | step=605, loss=0.0008
+I | 06-21 06:15:28 | pretrain | step=606, loss=0.0008
+I | 06-21 06:15:40 | pretrain | step=607, loss=0.0008
+I | 06-21 06:15:53 | pretrain | step=608, loss=0.0008
+I | 06-21 06:16:05 | pretrain | step=609, loss=0.0008
+I | 06-21 06:16:16 | pretrain | step=610, loss=0.0007
+I | 06-21 06:16:28 | pretrain | step=611, loss=0.0007
+I | 06-21 06:16:41 | pretrain | step=612, loss=0.0008
+I | 06-21 06:16:52 | pretrain | step=613, loss=0.0007
+I | 06-21 06:17:05 | pretrain | step=614, loss=0.0008
+I | 06-21 06:17:16 | pretrain | step=615, loss=0.0008
+I | 06-21 06:17:30 | pretrain | step=616, loss=0.0008
+I | 06-21 06:17:42 | pretrain | step=617, loss=0.0008
+I | 06-21 06:17:55 | pretrain | step=618, loss=0.0008
+I | 06-21 06:18:08 | pretrain | step=619, loss=0.0008
+I | 06-21 06:18:20 | pretrain | step=620, loss=0.0008
+I | 06-21 06:18:33 | pretrain | step=621, loss=0.0008
+I | 06-21 06:18:45 | pretrain | step=622, loss=0.0008
+I | 06-21 06:18:56 | pretrain | step=623, loss=0.0008
+I | 06-21 06:19:08 | pretrain | step=624, loss=0.0008
+I | 06-21 06:19:21 | pretrain | step=625, loss=0.0008
+I | 06-21 06:19:33 | pretrain | step=626, loss=0.0007
+I | 06-21 06:19:45 | pretrain | step=627, loss=0.0008
+I | 06-21 06:19:57 | pretrain | step=628, loss=0.0008
+I | 06-21 06:20:09 | pretrain | step=629, loss=0.0008
+I | 06-21 06:20:21 | pretrain | step=630, loss=0.0008
+I | 06-21 06:20:32 | pretrain | step=631, loss=0.0008
+I | 06-21 06:20:44 | pretrain | step=632, loss=0.0008
+I | 06-21 06:20:57 | pretrain | step=633, loss=0.0008
+I | 06-21 06:21:09 | pretrain | step=634, loss=0.0008
+I | 06-21 06:21:22 | pretrain | step=635, loss=0.0008
+I | 06-21 06:21:33 | pretrain | step=636, loss=0.0008
+I | 06-21 06:21:46 | pretrain | step=637, loss=0.0008
+I | 06-21 06:22:00 | pretrain | step=638, loss=0.0008
+I | 06-21 06:22:13 | pretrain | step=639, loss=0.0008
+I | 06-21 06:22:26 | pretrain | step=640, loss=0.0008
+I | 06-21 06:22:39 | pretrain | step=641, loss=0.0008
+I | 06-21 06:22:51 | pretrain | step=642, loss=0.0008
+I | 06-21 06:23:04 | pretrain | step=643, loss=0.0008
+I | 06-21 06:23:16 | pretrain | step=644, loss=0.0008
+I | 06-21 06:23:28 | pretrain | step=645, loss=0.0008
+I | 06-21 06:23:41 | pretrain | step=646, loss=0.0008
+I | 06-21 06:23:53 | pretrain | step=647, loss=0.0007
+I | 06-21 06:24:05 | pretrain | step=648, loss=0.0008
+I | 06-21 06:24:18 | pretrain | step=649, loss=0.0008
+I | 06-21 06:24:30 | pretrain | step=650, loss=0.0007
+I | 06-21 06:24:43 | pretrain | step=651, loss=0.0008
+I | 06-21 06:24:55 | pretrain | step=652, loss=0.0008
+I | 06-21 06:25:09 | pretrain | step=653, loss=0.0008
+I | 06-21 06:25:22 | pretrain | step=654, loss=0.0008
+I | 06-21 06:25:34 | pretrain | step=655, loss=0.0008
+I | 06-21 06:25:47 | pretrain | step=656, loss=0.0008
+I | 06-21 06:25:59 | pretrain | step=657, loss=0.0008
+I | 06-21 06:26:11 | pretrain | step=658, loss=0.0008
+I | 06-21 06:26:24 | pretrain | step=659, loss=0.0008
+I | 06-21 06:26:36 | pretrain | step=660, loss=0.0008
+I | 06-21 06:26:48 | pretrain | step=661, loss=0.0008
+I | 06-21 06:27:00 | pretrain | step=662, loss=0.0008
+I | 06-21 06:27:13 | pretrain | step=663, loss=0.0008
+I | 06-21 06:27:26 | pretrain | step=664, loss=0.0008
+I | 06-21 06:27:38 | pretrain | step=665, loss=0.0008
+I | 06-21 06:27:50 | pretrain | step=666, loss=0.0008
+I | 06-21 06:28:03 | pretrain | step=667, loss=0.0008
+I | 06-21 06:28:17 | pretrain | step=668, loss=0.0008
+I | 06-21 06:28:29 | pretrain | step=669, loss=0.0007
+I | 06-21 06:28:41 | pretrain | step=670, loss=0.0008
+I | 06-21 06:28:54 | pretrain | step=671, loss=0.0008
+I | 06-21 06:29:07 | pretrain | step=672, loss=0.0008
+I | 06-21 06:29:20 | pretrain | step=673, loss=0.0008
+I | 06-21 06:29:33 | pretrain | step=674, loss=0.0008
+I | 06-21 06:29:45 | pretrain | step=675, loss=0.0008
+I | 06-21 06:29:58 | pretrain | step=676, loss=0.0007
+I | 06-21 06:30:10 | pretrain | step=677, loss=0.0007
+I | 06-21 06:30:22 | pretrain | step=678, loss=0.0007
+I | 06-21 06:30:34 | pretrain | step=679, loss=0.0008
+I | 06-21 06:30:46 | pretrain | step=680, loss=0.0008
+I | 06-21 06:30:58 | pretrain | step=681, loss=0.0008
+I | 06-21 06:31:09 | pretrain | step=682, loss=0.0008
+I | 06-21 06:31:22 | pretrain | step=683, loss=0.0007
+I | 06-21 06:31:35 | pretrain | step=684, loss=0.0008
+I | 06-21 06:31:48 | pretrain | step=685, loss=0.0007
+I | 06-21 06:31:59 | pretrain | step=686, loss=0.0007
+I | 06-21 06:32:11 | pretrain | step=687, loss=0.0008
+I | 06-21 06:32:24 | pretrain | step=688, loss=0.0007
+I | 06-21 06:32:36 | pretrain | step=689, loss=0.0007
+I | 06-21 06:32:48 | pretrain | step=690, loss=0.0007
+I | 06-21 06:33:01 | pretrain | step=691, loss=0.0007
+I | 06-21 06:33:12 | pretrain | step=692, loss=0.0007
+I | 06-21 06:33:24 | pretrain | step=693, loss=0.0007
+I | 06-21 06:33:37 | pretrain | step=694, loss=0.0007
+I | 06-21 06:33:49 | pretrain | step=695, loss=0.0007
+I | 06-21 06:34:01 | pretrain | step=696, loss=0.0007
+I | 06-21 06:34:13 | pretrain | step=697, loss=0.0007
+I | 06-21 06:34:24 | pretrain | step=698, loss=0.0007
+I | 06-21 06:34:37 | pretrain | step=699, loss=0.0007
+I | 06-21 06:34:48 | pretrain | step=700, loss=0.0007
+I | 06-21 06:35:00 | pretrain | step=701, loss=0.0007
+I | 06-21 06:35:12 | pretrain | step=702, loss=0.0008
+I | 06-21 06:35:24 | pretrain | step=703, loss=0.0008
+I | 06-21 06:35:36 | pretrain | step=704, loss=0.0008
+I | 06-21 06:35:48 | pretrain | step=705, loss=0.0007
+I | 06-21 06:36:00 | pretrain | step=706, loss=0.0008
+I | 06-21 06:36:13 | pretrain | step=707, loss=0.0008
+I | 06-21 06:36:25 | pretrain | step=708, loss=0.0008
+I | 06-21 06:36:38 | pretrain | step=709, loss=0.0007
+I | 06-21 06:36:50 | pretrain | step=710, loss=0.0008
+I | 06-21 06:37:02 | pretrain | step=711, loss=0.0007
+I | 06-21 06:37:14 | pretrain | step=712, loss=0.0007
+I | 06-21 06:37:27 | pretrain | step=713, loss=0.0007
+I | 06-21 06:37:39 | pretrain | step=714, loss=0.0007
+I | 06-21 06:37:52 | pretrain | step=715, loss=0.0007
+I | 06-21 06:38:04 | pretrain | step=716, loss=0.0007
+I | 06-21 06:38:16 | pretrain | step=717, loss=0.0008
+I | 06-21 06:38:29 | pretrain | step=718, loss=0.0007
+I | 06-21 06:38:41 | pretrain | step=719, loss=0.0007
+I | 06-21 06:38:53 | pretrain | step=720, loss=0.0007
+I | 06-21 06:39:06 | pretrain | step=721, loss=0.0008
+I | 06-21 06:39:19 | pretrain | step=722, loss=0.0007
+I | 06-21 06:39:31 | pretrain | step=723, loss=0.0007
+I | 06-21 06:39:44 | pretrain | step=724, loss=0.0007
+I | 06-21 06:39:57 | pretrain | step=725, loss=0.0007
+I | 06-21 06:40:09 | pretrain | step=726, loss=0.0008
+I | 06-21 06:40:21 | pretrain | step=727, loss=0.0007
+I | 06-21 06:40:34 | pretrain | step=728, loss=0.0007
+I | 06-21 06:40:46 | pretrain | step=729, loss=0.0007
+I | 06-21 06:40:58 | pretrain | step=730, loss=0.0007
+I | 06-21 06:41:10 | pretrain | step=731, loss=0.0007
+I | 06-21 06:41:22 | pretrain | step=732, loss=0.0007
+I | 06-21 06:41:33 | pretrain | step=733, loss=0.0007
+I | 06-21 06:41:45 | pretrain | step=734, loss=0.0007
+I | 06-21 06:41:57 | pretrain | step=735, loss=0.0007
+I | 06-21 06:42:11 | pretrain | step=736, loss=0.0007
+I | 06-21 06:42:23 | pretrain | step=737, loss=0.0007
+I | 06-21 06:42:35 | pretrain | step=738, loss=0.0007
+I | 06-21 06:42:47 | pretrain | step=739, loss=0.0008
+I | 06-21 06:43:00 | pretrain | step=740, loss=0.0008
+I | 06-21 06:43:11 | pretrain | step=741, loss=0.0008
+I | 06-21 06:43:24 | pretrain | step=742, loss=0.0008
+I | 06-21 06:43:36 | pretrain | step=743, loss=0.0007
+I | 06-21 06:43:48 | pretrain | step=744, loss=0.0008
+I | 06-21 06:44:00 | pretrain | step=745, loss=0.0007
+I | 06-21 06:44:12 | pretrain | step=746, loss=0.0007
+I | 06-21 06:44:24 | pretrain | step=747, loss=0.0008
+I | 06-21 06:44:36 | pretrain | step=748, loss=0.0007
+I | 06-21 06:44:48 | pretrain | step=749, loss=0.0007
+I | 06-21 06:45:01 | pretrain | step=750, loss=0.0007
+I | 06-21 06:45:14 | pretrain | step=751, loss=0.0007
+I | 06-21 06:45:26 | pretrain | step=752, loss=0.0007
+I | 06-21 06:45:38 | pretrain | step=753, loss=0.0007
+I | 06-21 06:45:51 | pretrain | step=754, loss=0.0007
+I | 06-21 06:46:03 | pretrain | step=755, loss=0.0007
+I | 06-21 06:46:15 | pretrain | step=756, loss=0.0007
+I | 06-21 06:46:27 | pretrain | step=757, loss=0.0007
+I | 06-21 06:46:40 | pretrain | step=758, loss=0.0007
+I | 06-21 06:46:52 | pretrain | step=759, loss=0.0007
+I | 06-21 06:47:04 | pretrain | step=760, loss=0.0007
+I | 06-21 06:47:16 | pretrain | step=761, loss=0.0007
+I | 06-21 06:47:29 | pretrain | step=762, loss=0.0007
+I | 06-21 06:47:41 | pretrain | step=763, loss=0.0007
+I | 06-21 06:47:55 | pretrain | step=764, loss=0.0007
+I | 06-21 06:48:07 | pretrain | step=765, loss=0.0007
+I | 06-21 06:48:19 | pretrain | step=766, loss=0.0008
+I | 06-21 06:48:31 | pretrain | step=767, loss=0.0008
+I | 06-21 06:48:44 | pretrain | step=768, loss=0.0007
+I | 06-21 06:48:56 | pretrain | step=769, loss=0.0008
+I | 06-21 06:49:09 | pretrain | step=770, loss=0.0007
+I | 06-21 06:49:22 | pretrain | step=771, loss=0.0007
+I | 06-21 06:49:35 | pretrain | step=772, loss=0.0008
+I | 06-21 06:49:48 | pretrain | step=773, loss=0.0008
+I | 06-21 06:50:00 | pretrain | step=774, loss=0.0007
+I | 06-21 06:50:12 | pretrain | step=775, loss=0.0007
+I | 06-21 06:50:24 | pretrain | step=776, loss=0.0007
+I | 06-21 06:50:37 | pretrain | step=777, loss=0.0007
+I | 06-21 06:50:49 | pretrain | step=778, loss=0.0008
+I | 06-21 06:51:02 | pretrain | step=779, loss=0.0007
+I | 06-21 06:51:14 | pretrain | step=780, loss=0.0008
+I | 06-21 06:51:26 | pretrain | step=781, loss=0.0008
+I | 06-21 06:51:39 | pretrain | step=782, loss=0.0008
+I | 06-21 06:51:52 | pretrain | step=783, loss=0.0008
+I | 06-21 06:52:05 | pretrain | step=784, loss=0.0008
+I | 06-21 06:52:19 | pretrain | step=785, loss=0.0007
+I | 06-21 06:52:32 | pretrain | step=786, loss=0.0008
+I | 06-21 06:52:44 | pretrain | step=787, loss=0.0008
+I | 06-21 06:52:56 | pretrain | step=788, loss=0.0008
+I | 06-21 06:53:09 | pretrain | step=789, loss=0.0008
+I | 06-21 06:53:21 | pretrain | step=790, loss=0.0007
+slurmstepd: error: *** JOB 30855089 ON gpu-q-82 CANCELLED AT 2026-06-21T06:53:28 DUE TO TIME LIMIT ***

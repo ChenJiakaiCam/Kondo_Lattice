@@ -1,0 +1,76 @@
+Loading rhel8/default-amp
+  Loading requirement: rhel8/slurm singularity/current rhel8/global cuda/11.4
+    libpciaccess/0.16/gcc-9.4.0-6fonbj6 libiconv/1.16/gcc-9.4.0-ahebbov
+    libxml2/2.9.12/gcc-9.4.0-gnknt5e ncurses/6.2/gcc-9.4.0-aiirok7
+    hwloc/2.5.0/gcc-9.4.0-7sqomga libevent/2.1.12/gcc-9.4.0-hgny7cm
+    numactl/2.0.14/gcc-9.4.0-52dwc6n cuda/11.4.0/gcc-9.4.0-3hnxhjt
+    gdrcopy/2.2/gcc-9.4.0-e4igtfp knem/1.1.4/gcc-9.4.0-bpbxgva
+    libnl/3.3.0/gcc-9.4.0-whwhrwb rdma-core/34.0/gcc-9.4.0-5eo5n2u
+    ucx/1.11.1/gcc-9.4.0-lktqyl4 openmpi/4.1.1/gcc-9.4.0-epagguv
+Changed directory to /rds/user/jc2405/hpc-work/JaQMC/jaqmc.
+
+JobID: 30853952
+======
+Time: Sun Jun 21 00:10:32 BST 2026
+Running on master node: gpu-q-18
+Current directory: /rds/user/jc2405/hpc-work/JaQMC/jaqmc
+
+Nodes allocated:
+================
+gpu-q-18
+
+numtasks=1, numnodes=1, mpi_tasks_per_node=1 (OMP_NUM_THREADS=1)
+
+Executing command:
+==================
+python /rds/user/jc2405/hpc-work/JaQMC/jaqmc/physical_observables_wf.py
+
+E0621 00:12:42.005397  244599 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0621 00:12:42.005581  244600 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+E0621 00:12:42.005711  244601 numa_hwloc.cc:121] Call to hwloc_set_cpubind() failed: Invalid argument [22]
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
+WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
+E0621 00:13:21.415770  244633 cuda_timer.cc:87] Delay kernel timed out: measured time has sub-optimal accuracy. There may be a missing warmup execution, please investigate in Nsight Systems.
+E0621 00:15:24.502801  244634 slow_operation_alarm.cc:73] 
+********************************
+[Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+E0621 00:41:00.151859  244606 slow_operation_alarm.cc:140] The operation took 27m35.649131836s
+
+********************************
+[Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+Loading cached k-points from disk...
+Run SCF: Skipped (Loaded from cache!)
+Successfully loaded 4096 walkers from train_ckpt_009999.npz!
+Loaded state contents:
+  - params: dict with 848,608 parameters
+  - batched_data: 4096 walkers
+  - electron positions shape: (4096, 12, 3)
+Wavefunction output keys: ['abs_logdets', 'logpsi', 'sign_logdets']
+
+log(ψ) shape: (4096,)
+log(ψ) statistics:
+  mean: -14.9982-0.9169j
+  std:  2.7333
+Global coordinate range: [0.0000, 99.9999]
+X-axis range: [0.0000, 7.5600]
+Y-axis range: [0.0000, 99.9999]
+Z-axis range: [0.0000, 99.9998]
+Single walker evaluation:
+Single walker evaluation:
+  log(ψ) = -13.498222 + 0.622141j
+Pipeline initialized successfully!
+Computed observables (from 4096 walkers):
+  Kinetic energy:   19.072189-0.000438j Ha
+  Potential energy: -74.395454 Ha
+  Total energy:     -55.323265-0.000438j Ha
+Energy variance (from estimator pipeline):
+  Kinetic var:   53.008606-0.148821j
+  Potential var: 108.101074
+
+Successfully saved observables to: /rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.78_spin_6_6/eval_results/epoch_9999_observables.json

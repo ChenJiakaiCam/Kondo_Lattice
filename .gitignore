@@ -33,3 +33,5 @@ docs/apidocs/
 jupyter_execute/
 # Synced notebooks
 notebooks/
+
+machine.file.*
