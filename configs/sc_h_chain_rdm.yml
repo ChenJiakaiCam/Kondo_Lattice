@@ -26,6 +26,7 @@ estimators:
   rdm:
     n_sweeps: 5
     aux_steps: 10       
+    batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
 
 
 # estimators:

@@ -225,30 +225,36 @@ class OneAndTwoRDM(Estimator):
             # ---------------------------------------------------
             # 1-RDM 
             # ---------------------------------------------------
-            varphi_rp_1rdm = self._evaluate_mo(walker_rp_1rdm)       
-            fsum_rp_1rdm = self._fsum(walker_rp_1rdm)                
-            varphi_rp_1rdm_over_f = varphi_rp_1rdm / fsum_rp_1rdm[:, None]
+            # Here we assume restricted orbitals? where phi(r) is the same for both up and down spins?
+            # So only need to worry about indices in Phi(R/R'/R'')
             
-            # Calculate normalization factor (Ni_sq) based on the 1-RDM samples
-            unnorm_Ni_sq = jnp.abs(varphi_rp_1rdm)**2 / fsum_rp_1rdm[:, None]
-            Ni_sq = jnp.mean(unnorm_Ni_sq, axis=0)  
+            varphi_rp_1rdm = self._evaluate_mo(walker_rp_1rdm) #phi(r')
+            fsum_rp_1rdm = self._fsum(walker_rp_1rdm) #f(r')
+            varphi_rp_1rdm_over_f = varphi_rp_1rdm / fsum_rp_1rdm[:, None] #phi(r')/f(r')
+            
+            # Calculate normalization factor (Ni_sq) based on the 1-RDM samples 
+            unnorm_Ni_sq = jnp.abs(varphi_rp_1rdm)**2 / fsum_rp_1rdm[:, None] #N_i ^ 2 = E(|phi_i(r')|^2 / f(r'))
+            Ni_sq = jnp.mean(unnorm_Ni_sq, axis=0)
             
             def displace_one(a, rp):
-                displaced = electrons.at[a].set(rp)
-                return self.phase_logpsi(params, walker_data.merge({self.data_field: displaced}))
+                displaced = electrons.at[a].set(rp) 
+                #phase_logpsi is of many-electrons wavefunction Phi
+                return self.phase_logpsi(params, walker_data.merge({self.data_field: displaced})) #phase(Phi(R')) and log|Phi(R')|
                 
             vmap_displace_one = jax.vmap(jax.vmap(displace_one, in_axes=(None, 0)), in_axes=(0, None))
             
-            idx_up = jnp.arange(self.n_up)
+            idx_up = jnp.arange(self.n_up) # same convention as in other estimators like estimator/spin.py
             idx_down = jnp.arange(self.n_up, nelec)
             
-            phase_prime_up, log_mag_prime_up = vmap_displace_one(idx_up, walker_rp_1rdm) 
+            phase_prime_up, log_mag_prime_up = vmap_displace_one(idx_up, walker_rp_1rdm) #Phi(R'), shape: (n_up, n_sweeps)
             phase_prime_down, log_mag_prime_down = vmap_displace_one(idx_down, walker_rp_1rdm) 
             
-            wf_ratio_up = (phase_prime_up / phase) * jnp.exp(log_mag_prime_up - log_mag)
+            wf_ratio_up = (phase_prime_up / phase) * jnp.exp(log_mag_prime_up - log_mag) #Phi(R')/Phi(R), shape: (n_up, n_sweeps)
             wf_ratio_down = (phase_prime_down / phase) * jnp.exp(log_mag_prime_down - log_mag)
             
-            one_rdm_up = jnp.einsum(
+            
+            #These are not normalized! The numerators (one_rdm_up/down) and the denominators (Ni_sq) are sampled separately and then combined in finalized_stats
+            one_rdm_up = jnp.einsum( # a is for nelec, A for n_sweeps, i, j for norbs
                 "aA,ai,Aj->ij", jnp.conj(wf_ratio_up), jnp.conj(varphi_r[:self.n_up]), varphi_rp_1rdm_over_f
             ) / self.n_sweeps
             
@@ -259,27 +265,28 @@ class OneAndTwoRDM(Estimator):
             # ---------------------------------------------------
             # 2-RDM 
             # ---------------------------------------------------
-            rp1_2rdm = walker_rp_2rdm[:, 0, :]  # Shape: (n_sweeps, 3)
-            rp2_2rdm = walker_rp_2rdm[:, 1, :]  # Shape: (n_sweeps, 3)
+            rp1_2rdm = walker_rp_2rdm[:, 0, :]  # Shape: (n_sweeps, 3) r'_a
+            rp2_2rdm = walker_rp_2rdm[:, 1, :]  # Shape: (n_sweeps, 3) r'_b
             
-            varphi_rp1_2rdm = self._evaluate_mo(rp1_2rdm)
-            varphi_rp2_2rdm = self._evaluate_mo(rp2_2rdm)
-            fsum_rp1_2rdm = self._fsum(rp1_2rdm)
-            fsum_rp2_2rdm = self._fsum(rp2_2rdm)
+            varphi_rp1_2rdm = self._evaluate_mo(rp1_2rdm) # phi(r'_a)
+            varphi_rp2_2rdm = self._evaluate_mo(rp2_2rdm) # phi(r'_b)
+            fsum_rp1_2rdm = self._fsum(rp1_2rdm) # f(r'_a)
+            fsum_rp2_2rdm = self._fsum(rp2_2rdm) # f(r'_b)
             
-            varphi_rp1_2rdm_over_f = varphi_rp1_2rdm / fsum_rp1_2rdm[:, None]
-            varphi_rp2_2rdm_over_f = varphi_rp2_2rdm / fsum_rp2_2rdm[:, None]
+            varphi_rp1_2rdm_over_f = varphi_rp1_2rdm / fsum_rp1_2rdm[:, None] #phi(r'_a)/f(r'_a)
+            varphi_rp2_2rdm_over_f = varphi_rp2_2rdm / fsum_rp2_2rdm[:, None] #phi(r'_b)/f(r'_b)
 
             def displace_two(a, b, r1, r2):
                 displaced = electrons.at[a].set(r1).at[b].set(r2)
-                return self.phase_logpsi(params, walker_data.merge({self.data_field: displaced}))
+                return self.phase_logpsi(params, walker_data.merge({self.data_field: displaced})) #Phi(R''_ab)
                 
             # Vectorize over sweeps (dim 2 & 3) and particles (dim 0 & 1)
-            vmap_sweeps_2rdm = jax.vmap(displace_two, in_axes=(None, None, 0, 0))
-            vmap_b_2rdm = jax.vmap(vmap_sweeps_2rdm, in_axes=(None, 0, None, None))
-            vmap_a_2rdm = jax.vmap(vmap_b_2rdm, in_axes=(0, None, None, None))
+            vmap_sweeps_2rdm = jax.vmap(displace_two, in_axes=(None, None, 0, 0)) #loops over n_sweeps
+            vmap_b_2rdm = jax.vmap(vmap_sweeps_2rdm, in_axes=(None, 0, None, None)) #loops over electron b
+            vmap_a_2rdm = jax.vmap(vmap_b_2rdm, in_axes=(0, None, None, None)) #loops over electron a
             
-            phase_prime_uu, log_mag_prime_uu = vmap_a_2rdm(idx_up, idx_up, rp1_2rdm, rp2_2rdm)
+            # In Eqn 10 in the H-chain paper Gamma_ijij^(down_up) is converted to Gamma_jiji(up_down) (basically just re-labelling particles) so we can compute one less 2RDM matix
+            phase_prime_uu, log_mag_prime_uu = vmap_a_2rdm(idx_up, idx_up, rp1_2rdm, rp2_2rdm) #Phi(R''_ab)
             phase_prime_dd, log_mag_prime_dd = vmap_a_2rdm(idx_down, idx_down, rp1_2rdm, rp2_2rdm)
             phase_prime_ud, log_mag_prime_ud = vmap_a_2rdm(idx_up, idx_down, rp1_2rdm, rp2_2rdm)
             
@@ -287,11 +294,13 @@ class OneAndTwoRDM(Estimator):
             wf_ratio_dd = (phase_prime_dd / phase) * jnp.exp(log_mag_prime_dd - log_mag)
             wf_ratio_ud = (phase_prime_ud / phase) * jnp.exp(log_mag_prime_ud - log_mag)
             
-            # Mask out self-interaction (a = b) for same-spin pairs[cite: 1]
+            # Mask out self-interaction (a = b) for same-spin pairs
             mask_uu = (1.0 - jnp.eye(self.n_up))[:, :, None]
             mask_dd = (1.0 - jnp.eye(self.n_down))[:, :, None]
             
-            wf_ratio_uu = wf_ratio_uu * mask_uu
+            #So setting Phi(R''_ab) to zero for spin_a = spin_b and a = b
+            # Technically <ctctcc> give zero, but I think probably still need masking (was also done in Ferminet rdm.py) to avoid computational problems that may come from getting log|Psi=0| and in vmap_a_2rdm where we're swapping a to r_1 and then b=a to r_2 again (so overwriting r_1)
+            wf_ratio_uu = wf_ratio_uu * mask_uu 
             wf_ratio_dd = wf_ratio_dd * mask_dd
             
             unnorm_two_rdm_uu = jnp.einsum(
@@ -331,11 +340,71 @@ class OneAndTwoRDM(Estimator):
             r_prime_per_walker_2rdm
         )
         
-        # Add the global auxiliary acceptance rate to the batched stats so we can track it
-        walker_stats["aux_pmove"] = jnp.broadcast_to(aux_stats["pmove"], (batched_data.batch_size,))
         new_state = {
             "r_prime_pool": r_prime_pool, 
             "sampler_state": sampler_state
         }
         
         return walker_stats, new_state
+    
+    
+    def reduce(self, walker_stats: Mapping[str, Any]) -> dict[str, Any]:
+        return mean_reduce(walker_stats, include_variance=False)
+
+    def finalize_stats(
+        self, batched_stats: Mapping[str, Any], state: Any
+    ) -> dict[str, Any]:
+        """Average over steps and normalize the RDMs.
+        
+        Args:
+            batched_stats: Dictionary containing step-averaged values over the entire run. 
+                           Each value has shape (n_steps, ...).
+            state: Unused here.
+            
+        Returns:
+            Dictionary containing final, normalized 1-RDM and 2-RDM matrices, 
+            along with optional diagnostics like traces.
+        """
+        # 1. Average the step-level statistics over all MCMC steps (axis 0)
+        mean_stats = {
+            k: jnp.nanmean(v, axis=0) for k, v in batched_stats.items()
+        }
+        
+        # 2. Extract the normalization factors
+        # Ni_sq has shape (n_orbitals,)
+        Ni_sq = mean_stats["Ni_sq"]
+        
+        # Norm matrices for 1-RDM (outer product of normalization vectors)
+        norm_1rdm = jnp.sqrt(Ni_sq[:, None] * Ni_sq[None, :])
+        
+        # Norm tensors for 2-RDM (outer product of 4 normalization vectors)
+        # We need sqrt(Ni^2 * Nj^2 * Nk^2 * Nl^2)
+        norm_2rdm = jnp.sqrt(
+            Ni_sq[:, None, None, None] * 
+            Ni_sq[None, :, None, None] * 
+            Ni_sq[None, None, :, None] * 
+            Ni_sq[None, None, None, :]
+        )
+
+        # 3. Apply normalization
+        one_rdm_up = mean_stats["unnorm_one_rdm_up"] / norm_1rdm
+        one_rdm_down = mean_stats["unnorm_one_rdm_down"] / norm_1rdm
+        
+        two_rdm_uu = mean_stats["unnorm_two_rdm_up_up"] / norm_2rdm
+        two_rdm_dd = mean_stats["unnorm_two_rdm_down_down"] / norm_2rdm
+        two_rdm_ud = mean_stats["unnorm_two_rdm_up_down"] / norm_2rdm
+
+        # # Calculate traces as quick sanity checks (Total number of electrons/pairs)
+        # trace_up = jnp.trace(one_rdm_up)
+        # trace_down = jnp.trace(one_rdm_down)
+
+        # Return the final polished output
+        return {
+            "one_rdm_up": one_rdm_up,
+            "one_rdm_down": one_rdm_down,
+            "two_rdm_up_up": two_rdm_uu,
+            "two_rdm_down_down": two_rdm_dd,
+            "two_rdm_up_down": two_rdm_ud,
+            # "one_rdm_up:trace": trace_up,
+            # "one_rdm_down:trace": trace_down,
+        }
