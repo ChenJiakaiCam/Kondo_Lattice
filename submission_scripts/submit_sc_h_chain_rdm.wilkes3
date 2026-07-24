@@ -17,9 +17,9 @@
 #! How many (MPI) tasks will there be in total?
 #SBATCH --ntasks=1
 #! Specify the number of GPUs per node
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 #! How much wallclock time will be required?
-#SBATCH --time=01:00:00
+#SBATCH --time=00:30:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
@@ -45,8 +45,19 @@ module purge
 # For GPU
 module load rhel8/default-amp
 module load gcc/11
+module load cuda/12.1
 
 source /rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/activate
+
+# ==============================================================================
+# --- DYNAMICALLY LOAD ALL VENV NVIDIA LIBRARIES ---
+# ==============================================================================
+export VENV_LIB="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages"
+
+for libdir in "$VENV_LIB"/nvidia/*/lib; do
+    export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
+done
+# ==============================================================================
 
 
 
@@ -55,8 +66,8 @@ export OMP_NUM_THREADS=1
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
 CMD="jaqmc solid train \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.78_spin_6_6 \
+  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm.yml \
+  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.78_spin_6_6_rdm \
   pretrain.run.iterations=1000 train.run.iterations=10000"
 
 ###############################################################
