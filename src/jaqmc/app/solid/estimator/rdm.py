@@ -120,11 +120,14 @@ class OneAndTwoRDM(Estimator):
             0, num_burn_in_steps, burn_in_step, (r_prime_pool, sampler_state, key_burn)
         )
 
-        # r_prime.shape = (int(self.batch_size * self.ratio_naux_nbatch), 3)
         return {"r_prime_pool": r_prime_pool, "sampler_state": sampler_state}
 
     def _init_electrons(self, key: PRNGKey, num_samples: int) -> jnp.ndarray:
-        """Initialize auxiliary electron coordinates for a 1D periodic chain."""
+        """Initialize auxiliary electron coordinates for a 1D periodic chain.
+
+        Returns:
+            Initial array of auxiliary electron coordinates of shape ``(num_samples, 3)``.
+        """
         key_x, key_yz = jax.random.split(key)
 
         # Extract the length of the unit cell along the x-axis
@@ -141,24 +144,33 @@ class OneAndTwoRDM(Estimator):
         # Concatenate along the spatial axis to form the (num_samples, 3) array
         r_prime_pool = jnp.concatenate([x_init, yz_init], axis=1)
 
-        # Force the initial coordinates to sit strictly within the primary cell (maybe should just cut off?)
         r_prime_pool = wrap_positions(r_prime_pool, self._lattice_vectors)
-
         return r_prime_pool
 
-    # should still work even with PBC AOs?
     def _evaluate_mo(self, positions: jnp.ndarray) -> jnp.ndarray:
-        """Evaluate localized MOs at positions."""
+        """Evaluate localized MOs at positions.
+
+        Returns:
+            The evaluated localized MOs at the given positions.
+        """
         aos = self._ao_evaluator(positions, self._kpts)
         return jnp.dot(aos[0], self._mo_coeff)
 
     def _fsum(self, positions: jnp.ndarray) -> jnp.ndarray:
-        """Evaluate f(r) = sum_i |phi_i(r)|^2."""
+        """Evaluate f(r) = sum_i |phi_i(r)|^2.
+
+        Returns:
+            The evaluated f(r).
+        """
         mo = self._evaluate_mo(positions)
         return jnp.sum(jnp.abs(mo) ** 2, axis=-1)
 
     def _log_fsum(self, data: jnp.ndarray) -> jnp.ndarray:
-        """Evaluate log(f(r')) for MCMC sampling."""
+        """Evaluate log(f(r')) for MCMC sampling.
+
+        Returns:
+            The log probability log(f(r')).
+        """
         return jnp.log(self._fsum(data))
 
     def evaluate_batch_walkers(

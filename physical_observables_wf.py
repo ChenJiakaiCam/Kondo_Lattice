@@ -2,22 +2,27 @@ import os
 
 os.environ["JAX_PLATFORMS"] = "cuda"
 
-import dataclasses
 import time
-from dataclasses import replace
-from pathlib import Path
-
 import jax
 import yaml
-from jax import numpy as jnp
+from pathlib import Path
+from dataclasses import replace
 
-from jaqmc.app.solid.hamiltonian import PotentialEnergy
 from jaqmc.app.solid.workflow import SolidEvalWorkflow
+from jaqmc.utils.config import ConfigManager
+from jaqmc.workflow.base import init_batched_data
 from jaqmc.estimator import EstimatorPipeline
 from jaqmc.estimator.kinetic import EuclideanKinetic
 from jaqmc.utils import parallel_jax
 from jaqmc.utils.config import ConfigManager
-from jaqmc.workflow.base import init_batched_data
+from jax import numpy as jnp
+import jax.numpy as jnp
+import dataclasses
+
+from jaqmc.app.solid.hamiltonian import PotentialEnergy
+from jaqmc.estimator.kinetic import EuclideanKinetic
+from jaqmc.estimator import EstimatorPipeline
+import jax
 
 # ==========================================
 # 1. Setup Paths & Load Config
@@ -27,7 +32,7 @@ yaml_path = base_dir / "configs/sc_h_chain.yml"
 checkpoint_dir = base_dir / "runs/sc_h_chain_3.78_spin_6_6"
 target_ckpt_file = checkpoint_dir / "train_ckpt_009999.npz"
 
-with open(yaml_path, encoding="utf-8") as f:
+with open(yaml_path, "r") as f:
     raw_cfg = yaml.safe_load(f)
 
 # Inject overrides
@@ -43,10 +48,8 @@ cfg = ConfigManager(raw_cfg)
 eval_workflow = SolidEvalWorkflow(cfg)
 
 
-import operator
-from pathlib import Path
-
 import numpy as np
+from pathlib import Path
 
 # 1. Define a cache file path inside your run directory
 klist_cache_file = checkpoint_dir / "cached_klist.npy"
@@ -131,16 +134,18 @@ print(f"  - batched_data: {batched_data.batch_size} walkers")
 print(f"  - electron positions shape: {batched_data.data.electrons.shape}")
 
 
+P = jax.sharding.PartitionSpec
+
 evaluate_wf = parallel_jax.jit_sharded(
     lambda p, bd: jax.vmap(wf.apply, in_axes=(None, bd.vmap_axis))(p, bd.data),
-    in_specs=(jax.sharding.PartitionSpec(), batched_data.partition_spec),
+    in_specs=(P(), batched_data.partition_spec),
     out_specs=parallel_jax.DATA_PARTITION,
 )
 wf_output = evaluate_wf(params, batched_data)
 
 print("Wavefunction output keys:", list(wf_output.keys()))
 print(f"\nlog(ψ) shape: {wf_output['logpsi'].shape}")
-print("log(ψ) statistics:")
+print(f"log(ψ) statistics:")
 print(f"  mean: {jnp.mean(wf_output['logpsi']):.4f}")
 print(f"  std:  {jnp.std(wf_output['logpsi']):.4f}")
 
@@ -216,7 +221,7 @@ mean_stats, estimator_state = evaluate(
 )
 
 # finalize_stats() expects a leading step dimension — add one for single-step use
-batched_mean_stats = jax.tree.map(operator.itemgetter(None), mean_stats)
+batched_mean_stats = jax.tree.map(lambda x: x[None], mean_stats)
 final_stats = pipeline.finalize_stats(batched_mean_stats, estimator_state)
 
 print(f"Computed observables (from {batched_data.batch_size} walkers):")
@@ -231,7 +236,6 @@ print(f"  Potential var: {final_stats['energy:potential_var']:.6f}")
 
 
 import json
-
 import jax.numpy as jnp
 
 # 1. Convert JAX arrays to standard Python floats so they can be saved
@@ -245,10 +249,10 @@ stats_to_save["energy:total"] = float(jnp.real(total_energy))
 eval_results_dir = checkpoint_dir / "eval_results"
 eval_results_dir.mkdir(parents=True, exist_ok=True)
 
-stats_file = eval_results_dir / "epoch_9999_observables.json"
+stats_file = eval_results_dir / f"epoch_9999_observables.json"
 
 # 3. Write the dictionary to a JSON file
-with open(stats_file, "w", encoding="utf-8") as f:
+with open(stats_file, "w") as f:
     json.dump(stats_to_save, f, indent=4)
 
 print(f"\nSuccessfully saved observables to: {stats_file}")

@@ -1,24 +1,30 @@
 # generate_plot_arrays.py
 import os
-
-os.environ["JAX_PLATFORMS"] = "cuda"  # MUST be cuda for the Wilkes3 A100!
+os.environ["JAX_PLATFORMS"] = "cuda" # MUST be cuda for the Wilkes3 A100!
 
 import time
-from dataclasses import replace
-from pathlib import Path
-
 import jax
-import numpy as np
 import yaml
-from jax import numpy as jnp
+from pathlib import Path
+from dataclasses import replace
 
-from jaqmc.app.solid.hamiltonian import PotentialEnergy
 from jaqmc.app.solid.workflow import SolidEvalWorkflow
+from jaqmc.utils.config import ConfigManager
+from jaqmc.workflow.base import init_batched_data
 from jaqmc.estimator import EstimatorPipeline
 from jaqmc.estimator.kinetic import EuclideanKinetic
 from jaqmc.utils import parallel_jax
 from jaqmc.utils.config import ConfigManager
-from jaqmc.workflow.base import init_batched_data
+from jax import numpy as jnp
+import jax.numpy as jnp
+import dataclasses
+import numpy as np
+
+
+from jaqmc.app.solid.hamiltonian import PotentialEnergy
+from jaqmc.estimator.kinetic import EuclideanKinetic
+from jaqmc.estimator import EstimatorPipeline
+import jax
 
 # ==========================================
 # 1. Setup Paths & Load Config
@@ -28,7 +34,7 @@ yaml_path = base_dir / "configs/sc_h_chain.yml"
 checkpoint_dir = base_dir / "runs/sc_h_chain_3.78_spin_6_6"
 target_ckpt_file = checkpoint_dir / "train_ckpt_009999.npz"
 
-with open(yaml_path, encoding="utf-8") as f:
+with open(yaml_path, "r") as f:
     raw_cfg = yaml.safe_load(f)
 
 # Inject overrides
@@ -110,26 +116,20 @@ params = state.params
 batched_data = state.batched_data
 wf = eval_workflow.wf
 
-print(
-    f"Successfully loaded {batched_data.batch_size} walkers from {target_ckpt_file.name}!"
-)
+print(f"Successfully loaded {batched_data.batch_size} walkers from {target_ckpt_file.name}!")
 
 params = state.params
 batched_data = state.batched_data
 
 print("Loaded state contents:")
-print(
-    f"  - params: {type(params).__name__} with {sum(p.size for p in jax.tree.leaves(params)):,} parameters"
-)
+print(f"  - params: {type(params).__name__} with {sum(p.size for p in jax.tree.leaves(params)):,} parameters")
 print(f"  - batched_data: {batched_data.batch_size} walkers")
 print(f"  - electron positions shape: {batched_data.data.electrons.shape}")
 
 
 # Define your pipeline and estimators
 potential_est = PotentialEnergy(supercell_lattice=eval_workflow.wf.simulation_lattice)
-kinetic_est = EuclideanKinetic(
-    f_log_psi=eval_workflow.wf.logpsi, data_field="electrons"
-)
+kinetic_est = EuclideanKinetic(f_log_psi=eval_workflow.wf.logpsi, data_field="electrons")
 
 estimators = {
     "kinetic": kinetic_est,
@@ -140,16 +140,10 @@ estimators = {
 pipeline = EstimatorPipeline(estimators)
 estimator_state = pipeline.init(batched_data, jax.random.PRNGKey(0))
 
-
 def compute_local_energy(params, data):
-    kinetic_stats, _ = kinetic_est.evaluate_single_walker(
-        params, data, {}, None, jax.random.PRNGKey(0)
-    )
-    potential_stats, _ = potential_est.evaluate_single_walker(
-        params, data, {}, None, jax.random.PRNGKey(0)
-    )
+    kinetic_stats, _ = kinetic_est.evaluate_single_walker(params, data, {}, None, jax.random.PRNGKey(0))
+    potential_stats, _ = potential_est.evaluate_single_walker(params, data, {}, None, jax.random.PRNGKey(0))
     return kinetic_stats["energy:kinetic"] + potential_stats["energy:potential"]
-
 
 compute_local_energies = parallel_jax.jit_sharded(
     lambda p, bd: jax.vmap(
