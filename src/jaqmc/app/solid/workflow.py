@@ -15,7 +15,6 @@ from jaqmc.estimator.ecp import ECPEnergy
 from jaqmc.estimator.kinetic import EuclideanKinetic
 from jaqmc.estimator.spin import SpinSquared
 from jaqmc.estimator.total_energy import TotalEnergy
-from .estimator import OneAndTwoRDM
 from jaqmc.geometry.pbc import make_pbc_gaussian_proposal
 from jaqmc.optimizer.kfac import KFACOptimizer
 from jaqmc.optimizer.optax import adam
@@ -33,6 +32,7 @@ from jaqmc.workflow.vmc import VMCWorkflow
 
 from .config import SolidConfig
 from .data import data_init
+from .estimator import OneAndTwoRDM
 from .hamiltonian import PotentialEnergy
 from .wavefunction import SolidWavefunction
 
@@ -239,12 +239,12 @@ def make_estimators(
         )
         wire(density, inv_lattice=inv_lattice)
         estimators["density"] = density
-        
+
     if cfg.get("estimators.enabled.rdm", False):
         rdm = cfg.get(
             "estimators.rdm",
             OneAndTwoRDM(phase_logpsi=wf.phase_logpsi, scf=scf),
         )
         estimators["rdm"] = rdm
-    
+
     return estimators
