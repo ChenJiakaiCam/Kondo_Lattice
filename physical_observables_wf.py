@@ -1,4 +1,5 @@
 import os
+
 os.environ["JAX_PLATFORMS"] = "cuda"
 
 import time
@@ -36,8 +37,8 @@ with open(yaml_path, "r") as f:
 
 # Inject overrides
 raw_cfg["workflow"] = raw_cfg.get("workflow", {})
-raw_cfg["workflow"]["source_path"] = str(target_ckpt_file) 
-raw_cfg["workflow"]["save_path"] = str(checkpoint_dir / "eval_results") 
+raw_cfg["workflow"]["source_path"] = str(target_ckpt_file)
+raw_cfg["workflow"]["save_path"] = str(checkpoint_dir / "eval_results")
 raw_cfg["estimators"] = {"enabled": {"density": True}}
 
 # ==========================================
@@ -56,28 +57,28 @@ klist_cache_file = checkpoint_dir / "cached_klist.npy"
 # 2. Check if we already did the 15-minute math
 if klist_cache_file.exists():
     print("Loading cached k-points from disk...")
-    
+
     # Load the array (allow_pickle=True handles lists of arrays)
     cached_klist = np.load(klist_cache_file, allow_pickle=True)
-    
+
     # Inject it directly into the wavefunction
     eval_workflow.wf.klist = cached_klist
     print("Run SCF: Skipped (Loaded from cache!)")
 
 else:
     print("Running SCF... ")
-    
+
     # Run the expensive calculation
     eval_workflow.scf.run()
-    
+
     # Extract the results
     klist = eval_workflow.scf.get_orbital_kpoints()
     eval_workflow.wf.klist = klist
-    
+
     # Save the array to disk for all future runs
     np.save(klist_cache_file, klist)
     print(f"Run SCF: Complete. Data cached permanently to {klist_cache_file.name}")
-    
+
 # 2. Setup Random Keys
 seed = int(time.time())
 rngs = jax.random.PRNGKey(seed)
@@ -117,18 +118,20 @@ params = state.params
 batched_data = state.batched_data
 wf = eval_workflow.wf
 
-print(f"Successfully loaded {batched_data.batch_size} walkers from {target_ckpt_file.name}!") 
+print(
+    f"Successfully loaded {batched_data.batch_size} walkers from {target_ckpt_file.name}!"
+)
 
 
 params = state.params
 batched_data = state.batched_data
 
 print("Loaded state contents:")
-print(f"  - params: {type(params).__name__} with {sum(p.size for p in jax.tree.leaves(params)):,} parameters")
+print(
+    f"  - params: {type(params).__name__} with {sum(p.size for p in jax.tree.leaves(params)):,} parameters"
+)
 print(f"  - batched_data: {batched_data.batch_size} walkers")
 print(f"  - electron positions shape: {batched_data.data.electrons.shape}")
-
-
 
 
 P = jax.sharding.PartitionSpec
@@ -145,9 +148,6 @@ print(f"\nlog(ψ) shape: {wf_output['logpsi'].shape}")
 print(f"log(ψ) statistics:")
 print(f"  mean: {jnp.mean(wf_output['logpsi']):.4f}")
 print(f"  std:  {jnp.std(wf_output['logpsi']):.4f}")
-
-
-
 
 
 # Extract the electron coordinates array from the state
@@ -168,8 +168,6 @@ print(f"Y-axis range: [{axis_min[1]:.4f}, {axis_max[1]:.4f}]")
 print(f"Z-axis range: [{axis_min[2]:.4f}, {axis_max[2]:.4f}]")
 
 
-
-
 # Extract a single walker by indexing dim 0 of each batched field
 single_data = dataclasses.replace(
     batched_data.data,
@@ -180,10 +178,9 @@ single_output = wf.apply(params, single_data)
 
 print("Single walker evaluation:")
 # print(f"  log(ψ) = {single_output['logpsi']:.6f}")
-complex_logpsi = single_output['logpsi']
+complex_logpsi = single_output["logpsi"]
 print("Single walker evaluation:")
 print(f"  log(ψ) = {complex_logpsi.real:.6f} + {complex_logpsi.imag:.6f}j")
-
 
 
 # 1. Extract the computed supercell lattice directly from the workflow's wavefunction
@@ -205,19 +202,17 @@ estimator_state = pipeline.init(batched_data, jax.random.PRNGKey(0))
 print("Pipeline initialized successfully!")
 
 
-P = jax.sharding.PartitionSpec
-
 evaluate = parallel_jax.jit_sharded(
     pipeline.evaluate,
     in_specs=(
-        P(),                          # params: replicated
+        jax.sharding.PartitionSpec(),  # params: replicated
         batched_data.partition_spec,  # batched_data: batch dim sharded
-        P(),                          # estimator_state: no array leaves
-        P(),                          # rngs: replicated
+        jax.sharding.PartitionSpec(),  # estimator_state: no array leaves
+        jax.sharding.PartitionSpec(),  # rngs: replicated
     ),
     out_specs=(
-        P(),                          # step_stats: reduced scalars
-        P(),                          # estimator_state: no array leaves
+        jax.sharding.PartitionSpec(),  # step_stats: reduced scalars
+        jax.sharding.PartitionSpec(),  # estimator_state: no array leaves
     ),
 )
 
@@ -232,7 +227,7 @@ final_stats = pipeline.finalize_stats(batched_mean_stats, estimator_state)
 print(f"Computed observables (from {batched_data.batch_size} walkers):")
 print(f"  Kinetic energy:   {final_stats['energy:kinetic']:.6f} Ha")
 print(f"  Potential energy: {final_stats['energy:potential']:.6f} Ha")
-total_energy = final_stats['energy:kinetic'] + final_stats['energy:potential']
+total_energy = final_stats["energy:kinetic"] + final_stats["energy:potential"]
 print(f"  Total energy:     {total_energy:.6f} Ha")
 
 print("Energy variance (from estimator pipeline):")
@@ -248,11 +243,11 @@ import jax.numpy as jnp
 stats_to_save = {key: float(jnp.real(value)) for key, value in final_stats.items()}
 
 # Add your manually calculated total energy (also taking the real part)
-stats_to_save['energy:total'] = float(jnp.real(total_energy))
+stats_to_save["energy:total"] = float(jnp.real(total_energy))
 
 # 2. Define the path where the file will be saved
 eval_results_dir = checkpoint_dir / "eval_results"
-eval_results_dir.mkdir(parents=True, exist_ok=True) 
+eval_results_dir.mkdir(parents=True, exist_ok=True)
 
 stats_file = eval_results_dir / f"epoch_9999_observables.json"
 
@@ -261,4 +256,3 @@ with open(stats_file, "w") as f:
     json.dump(stats_to_save, f, indent=4)
 
 print(f"\nSuccessfully saved observables to: {stats_file}")
-

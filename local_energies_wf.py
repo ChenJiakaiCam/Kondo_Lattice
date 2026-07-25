@@ -39,8 +39,8 @@ with open(yaml_path, "r") as f:
 
 # Inject overrides
 raw_cfg["workflow"] = raw_cfg.get("workflow", {})
-raw_cfg["workflow"]["source_path"] = str(target_ckpt_file) 
-raw_cfg["workflow"]["save_path"] = str(checkpoint_dir / "eval_results") 
+raw_cfg["workflow"]["source_path"] = str(target_ckpt_file)
+raw_cfg["workflow"]["save_path"] = str(checkpoint_dir / "eval_results")
 raw_cfg["estimators"] = {"enabled": {"density": True}}
 
 # ==========================================
@@ -55,24 +55,24 @@ klist_cache_file = checkpoint_dir / "cached_klist.npy"
 # 2. Check if we already did the 15-minute math
 if klist_cache_file.exists():
     print("Loading cached k-points from disk...")
-    
+
     # Load the array (allow_pickle=True handles lists of arrays)
     cached_klist = np.load(klist_cache_file, allow_pickle=True)
-    
+
     # Inject it directly into the wavefunction
     eval_workflow.wf.klist = cached_klist
     print("Run SCF: Skipped (Loaded from cache!)")
 
 else:
     print("Running SCF... ")
-    
+
     # Run the expensive calculation
     eval_workflow.scf.run()
-    
+
     # Extract the results
     klist = eval_workflow.scf.get_orbital_kpoints()
     eval_workflow.wf.klist = klist
-    
+
     # Save the array to disk for all future runs
     np.save(klist_cache_file, klist)
     print(f"Run SCF: Complete. Data cached permanently to {klist_cache_file.name}")
