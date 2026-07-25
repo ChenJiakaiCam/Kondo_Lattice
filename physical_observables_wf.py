@@ -131,11 +131,9 @@ print(f"  - batched_data: {batched_data.batch_size} walkers")
 print(f"  - electron positions shape: {batched_data.data.electrons.shape}")
 
 
-P = jax.sharding.PartitionSpec
-
 evaluate_wf = parallel_jax.jit_sharded(
     lambda p, bd: jax.vmap(wf.apply, in_axes=(None, bd.vmap_axis))(p, bd.data),
-    in_specs=(P(), batched_data.partition_spec),
+    in_specs=(jax.sharding.PartitionSpec(), batched_data.partition_spec),
     out_specs=parallel_jax.DATA_PARTITION,
 )
 wf_output = evaluate_wf(params, batched_data)
@@ -199,19 +197,17 @@ estimator_state = pipeline.init(batched_data, jax.random.PRNGKey(0))
 print("Pipeline initialized successfully!")
 
 
-P = jax.sharding.PartitionSpec
-
 evaluate = parallel_jax.jit_sharded(
     pipeline.evaluate,
     in_specs=(
-        P(),  # params: replicated
+        jax.sharding.PartitionSpec(),  # params: replicated
         batched_data.partition_spec,  # batched_data: batch dim sharded
-        P(),  # estimator_state: no array leaves
-        P(),  # rngs: replicated
+        jax.sharding.PartitionSpec(),  # estimator_state: no array leaves
+        jax.sharding.PartitionSpec(),  # rngs: replicated
     ),
     out_specs=(
-        P(),  # step_stats: reduced scalars
-        P(),  # estimator_state: no array leaves
+        jax.sharding.PartitionSpec(),  # step_stats: reduced scalars
+        jax.sharding.PartitionSpec(),  # estimator_state: no array leaves
     ),
 )
 

@@ -76,8 +76,8 @@ class OneAndTwoRDM(Estimator):
 
         # nelec = getattr(data, self.data_field).shape[0]
         # Store spin boundaries
-        self.n_up = self.scf.nelectrons[0]
-        self.n_down = self.scf.nelectrons[1]
+        self.n_up = self.scf._cell.nelec[0]
+        self.n_down = self.scf._cell.nelec[1]
         # nelec = self.n_up + self.n_down
 
         key_init, key_burn = jax.random.split(rngs)
