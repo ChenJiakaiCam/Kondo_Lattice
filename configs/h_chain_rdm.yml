@@ -26,7 +26,9 @@ estimators:
     n_sweeps: 5
     aux_steps: 10       
     batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
-
+    phi_i: '0 H 1s'
+    phi_j: '3 H 1s'
+    supercell_matrix: [[3, 0, 0], [0, 1, 0], [0, 0, 1]]
 
 train:
   writers:

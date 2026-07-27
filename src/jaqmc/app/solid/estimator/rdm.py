@@ -5,13 +5,15 @@ and MCMC importance sampling of the auxiliary coordinate $r'$.
 """
 
 from collections.abc import Mapping
-from typing import Optional
+from typing import Optional, Sequence
 from typing import Any
 import logging
 
 import jax
 from jax import numpy as jnp
+
 from pyscf import lo
+from pyscf.pbc.tools import make_supercell
 
 # from ferminet.utils.system import pyscf_mol_to_internal_representation
 # from ferminet.train import init_electrons
@@ -55,6 +57,8 @@ class OneAndTwoRDM(Estimator):
     
     phi_i: Optional[str] = None
     phi_j: Optional[str] = None
+    
+    supercell_matrix: Optional[Sequence[Sequence[int]]] = None
 
     def init(self, data: SolidData, rngs: PRNGKey) -> dict[str, Any]:
         """ 
@@ -66,10 +70,22 @@ class OneAndTwoRDM(Estimator):
         # So the burn-in MCMC is done once here only
         
         #cell has basis, spin, charge, ecp, 
-        cell = self.scf._cell # pyscf_cell: pyscf.pbc.gto.Cell, equivalent to self._mol in Ferminet rdm.py
+        prim_cell = self.scf._cell # pyscf_cell: pyscf.pbc.gto.Cell, equivalent to self._mol in Ferminet rdm.py
+        
+        # 1. Build the supercell if the matrix was provided in the YAML
+        if self.supercell_matrix is not None:
+            logging.info(f"Building PySCF supercell using matrix: {self.supercell_matrix}")
+            supcell = make_supercell(prim_cell, self.supercell_matrix)
+        else:
+            supcell = prim_cell
+        
+        self._lattice_vectors = jnp.array(supcell.lattice_vectors())
+            
         # lattice_vectors() is a built-in function in the pyscf.pbc.gto.Cell class
         # lattice_vecotors() returns a 3x3 array of the lattice vectors of the unit cell in Cartesian coordinates
-        self._lattice_vectors = jnp.array(cell.lattice_vectors())
+        # self._lattice_vectors = jnp.array(cell.lattice_vectors())
+        
+        
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
         self._mo_coeff = jnp.array(lo.orth_ao(cell, 'meta-lowdin')) #same as in Ferminet rdm.py
@@ -78,8 +94,8 @@ class OneAndTwoRDM(Estimator):
         if getattr(self, 'phi_i', None) and getattr(self, 'phi_j', None):
             
             # Search for the indices
-            indices_i = self.scf._cell.search_ao_label(self.phi_i)
-            indices_j = self.scf._cell.search_ao_label(self.phi_j)
+            indices_i = supcell.search_ao_label(self.phi_i)
+            indices_j = supcell.search_ao_label(self.phi_j)
             
             # Assert that the search returned exactly one match
             assert len(indices_i) == 1, f"Expected exactly 1 match for phi_i ('{self.phi_i}'), but found {len(indices_i)}: {indices_i}"
@@ -95,11 +111,19 @@ class OneAndTwoRDM(Estimator):
             logging.info(f"Sliced self._mo_coeff for specific orbitals: {self.phi_i} (idx {idx_i}) and {self.phi_j} (idx {idx_j})")
             
         # In the H-chain paper it's using next-nearest-neighbour cutoff. I think here it's different by using PBCAtomicOrbitalEvaluator's estimate_rcut
-        self._ao_evaluator = PBCAtomicOrbitalEvaluator.from_pyscf(cell) #Later use with _mo_coeff to get localized meta-Lowdin orbitals
-        self._kpts = jnp.asarray(self.scf.get_orbital_kpoints())
+        self._ao_evaluator = PBCAtomicOrbitalEvaluator.from_pyscf(supcell) #Later use with _mo_coeff to get localized meta-Lowdin orbitals
+        # self._kpts = jnp.asarray(self.scf.get_orbital_kpoints())
+        # This is used to evaluate MOs later after meta-Lowdin orthogonalization. I think pySCF meta-Lowdin orthogonalizes using the same orbitals on each lattice point (k = 0), so when you evaluate you need to set k = 0 when evaluating nearby orbitals too? 
+        self._kpts = jnp.zeros((1, 3))
         
-        self.n_up = self.scf._cell.nelec[0]
-        self.n_down = self.scf._cell.nelec[1]
+        # The number of folded k-points is mathematically equal to the supercell scale factor (det(S)).
+        # We use this to scale the primitive cell electron count up to the full supercell count.
+        # scale = len(self.scf.kpts) #in PeriodicSCF kpts is from get_supercell_kpts(S, prim_rec_vecs), which calculates k-points corresponding to the vectors to the unit cells in the supercell, which is the supercell dimension (Can also just get from supercell_lattice from config but maybe this is more general, if you duplicate in other axis or maybe for 2/3D)
+        # self.n_up = self.scf._cell.nelec[0] * scale 
+        # self.n_down = self.scf._cell.nelec[1] * scale
+        
+        self.n_up = supcell.nelec[0] 
+        self.n_down = supcell.nelec[1]
         
         key_init, key_burn = jax.random.split(rngs)
         
