@@ -93,10 +93,10 @@ def _uniform_sample_sphere(key: PRNGKey) -> jnp.ndarray:
 
 
 @configurable_dataclass
-# With the decorator, the "class-level type hints" like flux, f_log_psi, data_field are used to generate a dataclass __init__ method that takes these as arguments. 
-# Decorator also forces Keyword-Only Instantiation so when you instantiate OneRDM, you must use keyword arguments like OneRDM(flux=2, f_log_psi=my_func), instead of positional arguments. 
+# With the decorator, the "class-level type hints" like flux, f_log_psi, data_field are used to generate a dataclass __init__ method that takes these as arguments.
+# Decorator also forces Keyword-Only Instantiation so when you instantiate OneRDM, you must use keyword arguments like OneRDM(flux=2, f_log_psi=my_func), instead of positional arguments.
 # Apparently you need the decorator to use the runtime_dep() function to mark f_log_psi and data_field as runtime dependencies that will be provided at runtime, not at class definition time.
-# Also wraps with @serde from pyserde library, which helps convert YAML configurations into OneRDM instances. 
+# Also wraps with @serde from pyserde library, which helps convert YAML configurations into OneRDM instances.
 # Used deny_unknown_fields=True, so if the YAML config has extra fields not defined in OneRDM, it will raise an error. This helps catch typos or misconfigurations early.
 class OneRDM(PerWalkerEstimator):
     r"""One-body reduced density matrix on the Haldane sphere.
@@ -114,7 +114,7 @@ class OneRDM(PerWalkerEstimator):
         f_log_psi: Complex log-psi function (runtime dep).
         data_field: Name of the data field (runtime dep, default ``"electrons"``).
     """
-    
+
     # Decorator automatically generates an __init__ method that takes flux, f_log_psi, and data_field as keyword arguments.
     #
     flux: int = 2
@@ -133,13 +133,13 @@ class OneRDM(PerWalkerEstimator):
 
     def evaluate_single_walker(
         self,
-        params: Params, #weights, parameters of the neural network 
-        data: Data, # Dictionary-like structure that contain things like the positions of the electrons in this specific walker   
-        prev_walker_stats: Mapping[str, Any], #Deleted later
-        state: Any, # Not used in this estimator, but included for compatibility with the PerWalkerEstimator interface. 
+        params: Params,  # weights, parameters of the neural network
+        data: Data,  # Dictionary-like structure that contain things like the positions of the electrons in this specific walker
+        prev_walker_stats: Mapping[str, Any],  # Deleted later
+        state: Any,  # Not used in this estimator, but included for compatibility with the PerWalkerEstimator interface.
         rngs: PRNGKey,
     ) -> tuple[dict[str, Any], Any]:
-        del prev_walker_stats #Inherits from PerWalkerEstimator, but not used here, so delete it to avoid unused variable warning
+        del prev_walker_stats  # Inherits from PerWalkerEstimator, but not used here, so delete it to avoid unused variable warning
         electrons = data[self.data_field]
         nelec = electrons.shape[0]
 
@@ -153,15 +153,22 @@ class OneRDM(PerWalkerEstimator):
         data_prime_electrons = data_prime_electrons.at[idx, idx].set(r_prime)
 
         # Evaluate log-psi at original and displaced configs
-        logpsi = self.f_log_psi(params, data) #Note f_log_psi takes the entire data dictionary, not just the electrons, because it may depend on other fields like ion positions etc in data.
+        logpsi = self.f_log_psi(
+            params, data
+        )  # Note f_log_psi takes the entire data dictionary, not just the electrons, because it may depend on other fields like ion positions etc in data.
 
         def eval_displaced(displaced_electrons: jnp.ndarray) -> jnp.ndarray:
             return self.f_log_psi(
-                params, data.merge({self.data_field: displaced_electrons}) # Merge here actually replaces the electrons field in data with displaced_electrons.
+                params,
+                data.merge(
+                    {self.data_field: displaced_electrons}
+                ),  # Merge here actually replaces the electrons field in data with displaced_electrons.
             )
 
         logpsi_prime = jax.vmap(eval_displaced)(data_prime_electrons)
-        wf_ratio = jnp.exp(logpsi_prime - logpsi) # I think for this Hamiltonian can assume real eigenfunctions?
+        wf_ratio = jnp.exp(
+            logpsi_prime - logpsi
+        )  # I think for this Hamiltonian can assume real eigenfunctions?
 
         # Orbitals at original positions: shape (nelec, norbs)
         varphi = jnp.stack([orb(electrons) for orb in self._orbitals], axis=-1)
@@ -169,12 +176,12 @@ class OneRDM(PerWalkerEstimator):
         varphi_prime = jnp.stack([orb(r_prime[None]) for orb in self._orbitals])[..., 0]
 
         # rho_ij = 4pi * sum_a ratio_a * phi_i(r_a) * phi_j*(r')
-        one_rdm = (4 * jnp.pi) * jnp.sum(#Sum over electrons  
+        one_rdm = (4 * jnp.pi) * jnp.sum(  # Sum over electrons
             wf_ratio[:, None, None]
             * varphi[:, :, None]
-            * jnp.conj(varphi_prime)[None, None, :], #conjugate
+            * jnp.conj(varphi_prime)[None, None, :],  # conjugate
             axis=0,
-        ) #shape: (norbs, norbs)
+        )  # shape: (norbs, norbs)
 
         return {"one_rdm": one_rdm}, state
 

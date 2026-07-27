@@ -110,7 +110,7 @@ run:
 sampler:
   steps: 10
   initial_width: 0.1
-  adapt_frequency: 100 
+  adapt_frequency: 100
   pmove_range: [0.5, 0.55]
 estimators:
   enabled:

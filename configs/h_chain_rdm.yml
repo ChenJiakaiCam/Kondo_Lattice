@@ -3,7 +3,7 @@ system:
   # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
     - [7.56, 0.0, 0.0]
     - [0.0, 100.0, 0.0]
-    - [0.0, 0.0, 100.0] 
+    - [0.0, 0.0, 100.0]
   atoms:
     - symbol: H
       coords: [0.0, 0.0, 0.0]
@@ -11,20 +11,20 @@ system:
     - symbol: H
       coords: [3.78, 0.0, 0.0]
       charge: 1.0
-    
-  electron_spins: [1, 1]     
-  basis: 
+
+  electron_spins: [1, 1]
+  basis:
     H: cc-pvdz
-  supercell_matrix: 
+  supercell_matrix:
     [[3, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
 
 estimators:
   enabled:
     rdm: true
-  
+
   rdm:
     n_sweeps: 5
-    aux_steps: 10       
+    aux_steps: 10
     batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
 
 

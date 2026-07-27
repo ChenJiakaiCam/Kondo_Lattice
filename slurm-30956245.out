@@ -35,7 +35,7 @@ WARNING:[folx]() - rem not in registry. The following call might be slow as we w
 WARNING:[folx]() - rem not in registry. The following call might be slow as we will compute the full hessian.
 WARNING:[folx]() - round not in registry. The following call might be slow as we will compute the full hessian.
 E0623 11:49:13.638576  454451 cuda_timer.cc:87] Delay kernel timed out: measured time has sub-optimal accuracy. There may be a missing warmup execution, please investigate in Nsight Systems.
-E0623 11:51:16.155888  454472 slow_operation_alarm.cc:73] 
+E0623 11:51:16.155888  454472 slow_operation_alarm.cc:73]
 ********************************
 [Compiling module input_reduce_fusion.7 for GPU] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
 ********************************
