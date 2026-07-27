@@ -3,7 +3,7 @@ system:
   # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
     - [7.56, 0.0, 0.0]
     - [0.0, 100.0, 0.0]
-    - [0.0, 0.0, 100.0] 
+    - [0.0, 0.0, 100.0]
   atoms:
     - symbol: Sc
       coords: [0.0, 0.0, 0.0]
@@ -11,9 +11,9 @@ system:
     - symbol: H
       coords: [3.78, 0.0, 0.0]
       charge: 1.0
-  # Sc (with ccecp): 21 total electrons - 10 core = 11 valence electrons. H: 1 valence electron. Total = 12 electrons per unit cell. 
-  electron_spins: [6, 6]     
-  basis: 
+  # Sc (with ccecp): 21 total electrons - 10 core = 11 valence electrons. H: 1 valence electron. Total = 12 electrons per unit cell.
+  electron_spins: [6, 6]
+  basis:
     Sc: ccecpccpvdz
     H: cc-pvdz
   ecp:
@@ -24,11 +24,11 @@ estimators:
     density: true
   density:
     axes:
-      a: 
+      a:
         lattice_index: 0
-        bins: 100         
-      b: null              
-      c: null             
+        bins: 100
+      b: null
+      c: null
 
 
 # estimators:
@@ -36,10 +36,10 @@ estimators:
 #     density: true
 #   density:
 #     axes:
-#       a: 
+#       a:
 #         lattice_index: 0
-#         bins: 50          
-#       b: 
+#         bins: 50
+#       b:
 #         lattice_index: 1
-#         bins: 500          
-#       c: null             
+#         bins: 500
+#       c: null
