@@ -5,7 +5,9 @@ and MCMC importance sampling of the auxiliary coordinate $r'$.
 """
 
 from collections.abc import Mapping
+from typing import Optional
 from typing import Any
+import logging
 
 import jax
 from jax import numpy as jnp
@@ -50,6 +52,9 @@ class OneAndTwoRDM(Estimator):
     # Batching parameters needed for the auxiliary pool
     batch_size: int = 2048          # Default JaQMC run config
     ratio_naux_nbatch: float = 2.0  # From original config
+    
+    phi_i: Optional[str] = None
+    phi_j: Optional[str] = None
 
     def init(self, data: SolidData, rngs: PRNGKey) -> dict[str, Any]:
         """ 
@@ -65,23 +70,49 @@ class OneAndTwoRDM(Estimator):
         # lattice_vectors() is a built-in function in the pyscf.pbc.gto.Cell class
         # lattice_vecotors() returns a 3x3 array of the lattice vectors of the unit cell in Cartesian coordinates
         self._lattice_vectors = jnp.array(cell.lattice_vectors())
+        
+        logging.info("Calculating Meta-Lowdin MO coefficients")
         self._mo_coeff = jnp.array(lo.orth_ao(cell, 'meta-lowdin')) #same as in Ferminet rdm.py
+        # 2. Check if the user specified target orbitals
+        if getattr(self, 'phi_i', None) and getattr(self, 'phi_j', None):
+            
+            # Search for the indices
+            indices_i = self.scf._cell.search_ao_label(self.phi_i)
+            indices_j = self.scf._cell.search_ao_label(self.phi_j)
+            
+            # Assert that the search returned exactly one match
+            assert len(indices_i) == 1, f"Expected exactly 1 match for phi_i ('{self.phi_i}'), but found {len(indices_i)}: {indices_i}"
+            assert len(indices_j) == 1, f"Expected exactly 1 match for phi_j ('{self.phi_j}'), but found {len(indices_j)}: {indices_j}"
+            
+            # Safely extract the single integer index
+            idx_i = indices_i[0]
+            idx_j = indices_j[0]
+            
+            # Slice self._mo_coeff down from (N_AO, N_AO) to (N_AO, 2) (N_AO for Sc in ecp is ~40)
+            self._mo_coeff = self._mo_coeff[:, [idx_i, idx_j]]
+            
+            logging.info(f"Sliced self._mo_coeff for specific orbitals: {self.phi_i} (idx {idx_i}) and {self.phi_j} (idx {idx_j})")
+            
         # In the H-chain paper it's using next-nearest-neighbour cutoff. I think here it's different by using PBCAtomicOrbitalEvaluator's estimate_rcut
         self._ao_evaluator = PBCAtomicOrbitalEvaluator.from_pyscf(cell) #Later use with _mo_coeff to get localized meta-Lowdin orbitals
         self._kpts = jnp.asarray(self.scf.get_orbital_kpoints())
         
-        # nelec = getattr(data, self.data_field).shape[0]
-        # Store spin boundaries
-        self.n_up = self.scf.nelectrons[0]
-        self.n_down = self.scf.nelectrons[1]
-        # nelec = self.n_up + self.n_down
+        self.n_up = self.scf._cell.nelec[0]
+        self.n_down = self.scf._cell.nelec[1]
         
         key_init, key_burn = jax.random.split(rngs)
         
         # Using self.n_sweeps directly (or data.r.shape[0] * self.n_sweeps if tracking per-walker)
         # Note currently this is not the same as FermiNet's _init_electrons. 
         # Here we just initialize uniformly along axis of 1D chain, then Gaussian in the other two axes. 
-        r_prime_pool = self._init_electrons(key=key_init, num_samples=int(self.batch_size * self.ratio_naux_nbatch))
+        
+        # If self.batch_size is 2048, ratio is 2.0, and GPUs are 4:
+        # 2048 * 2.0 * 4 = 16384 total global points.
+        # After sharding, each GPU gets 4096 local points (plenty for your 1024 walker batch)
+        # ---------------------------------------------------------
+        global_naux = int(self.batch_size * self.ratio_naux_nbatch * jax.device_count())
+        r_prime_pool = self._init_electrons(key=key_init, num_samples=global_naux)
+        # r_prime_pool = self._init_electrons(key=key_init, num_samples=int(self.batch_size * self.ratio_naux_nbatch))
         
         self._aux_sampler = MCMCSampler(
             # initial_width and adapt_frequency from rdm_base_config.py
@@ -95,29 +126,37 @@ class OneAndTwoRDM(Estimator):
         # Get the initial state for the adaptive MCMC
         sampler_state = self._aux_sampler.init(r_prime_pool, rngs)
         
+        #----------------------------Attempt to add r_prime burn-in in init(), but apparently running this here gives some axis mismatch problem where 'qmc_batch_axis' hasn't been created yet
+        # def burn_in_step(i, val):
+        #     rp, state, key = val
+        #     key, subkey = jax.random.split(key)
+        #     rp, _, state = self._aux_sampler.step(
+        #         batch_log_prob=self._log_fsum,
+        #         data=rp,
+        #         state=state, #contains data like the current width of the proposal distribution, acceptance rate, etc
+        #         rngs=subkey
+        #     )
+        #     return rp, state, key
         
-        def burn_in_step(i, val):
-            rp, state, key = val
-            key, subkey = jax.random.split(key)
-            rp, _, state = self._aux_sampler.step(
-                batch_log_prob=self._log_fsum,
-                data=rp,
-                state=state, #contains data like the current width of the proposal distribution, acceptance rate, etc
-                rngs=subkey
-            )
-            return rp, state, key
+        # num_burn_in_steps = 400  #follows rdm_base_config.py
         
-        num_burn_in_steps = 400  #follows rdm_base_config.py
-        
-        r_prime_pool, sampler_state, _ = jax.lax.fori_loop(
-            0, 
-            num_burn_in_steps, 
-            burn_in_step, 
-            (r_prime_pool, sampler_state, key_burn)
-        )
-        
-        #r_prime.shape = (int(self.batch_size * self.ratio_naux_nbatch), 3)
-        return {"r_prime_pool": r_prime_pool, "sampler_state": sampler_state}
+        # r_prime_pool, sampler_state, _ = jax.lax.fori_loop(
+        #     0, 
+        #     num_burn_in_steps, 
+        #     burn_in_step, 
+        #     (r_prime_pool, sampler_state, key_burn)
+        # ) 
+         #r_prime.shape = (int(self.batch_size * self.ratio_naux_nbatch), 3)
+        # --------------------------------------------------------
+
+        logging.info(f"Available orbitals: {self.scf._cell.ao_labels()}")
+        #For Sc-H chain this looks like '0 Sc 3s    ', '0 Sc 3dxy  ', '0 Sc 3dyz  ', '0 Sc 3dz^2 ', '0 Sc 3dxz  ', '0 Sc 3dx2-y2', '1 H 1s    ', etc
+       
+        return {
+            "r_prime_pool": r_prime_pool, 
+            "sampler_state": self._pad_sampler_state(sampler_state, r_prime_pool.shape[0]), 
+            "burn_in_counter": jnp.zeros_like(r_prime_pool[:, 0], dtype=jnp.int32)
+        } #last one is a flag so that r_prime_pool is burned in only once
     
     def _init_electrons(self, key: PRNGKey, num_samples: int) -> jnp.ndarray:
         """Initialize auxiliary electron coordinates for a 1D periodic chain."""
@@ -156,6 +195,20 @@ class OneAndTwoRDM(Estimator):
     def _log_fsum(self, data: jnp.ndarray) -> jnp.ndarray:
         """Evaluate log(f(r')) for MCMC sampling."""
         return jnp.log(self._fsum(data))
+    
+    def _pad_sampler_state(self, state_tree, size):
+        """Prepends the batch dimension to all sampler statistics (scalars and arrays)."""
+        return jax.tree_util.tree_map(
+            lambda x: jnp.broadcast_to(x, (size,) + jnp.shape(x)),
+            state_tree
+        )
+
+    def _unpad_sampler_state(self, state_tree):
+        """Strips the dummy batch dimension back out for the sampler."""
+        return jax.tree_util.tree_map(
+            lambda x: x[0],
+            state_tree
+        )
 
     def evaluate_batch_walkers(
         self,
@@ -167,24 +220,71 @@ class OneAndTwoRDM(Estimator):
     ) -> tuple[dict[str, Any], Any]:
         del prev_walker_stats  # Not used here, but included for compatibility with the Estimator interface.
         r_prime_pool = state["r_prime_pool"]
-        sampler_state = state["sampler_state"]
+        sampler_state = self._unpad_sampler_state(state["sampler_state"]) # Unpad it!
+        burn_in_counter = state["burn_in_counter"]
+        
+        rngs, burn_rng, step_rng, sweep_rng = jax.random.split(rngs, 4)
+        
+        num_burn_in_steps = 400
+        def burn_in(carry):
+            r_prime_pool, sampler_state, rng = carry
+
+            def body(_, val):
+                r_prime_pool, sampler_state, rng = val
+                rng, subkey = jax.random.split(rng)
+
+                r_prime_pool, _, sampler_state = self._aux_sampler.step(
+                    batch_log_prob=self._log_fsum,
+                    data=r_prime_pool,
+                    state=sampler_state,
+                    rngs=subkey,
+                )
+
+                return r_prime_pool, sampler_state, rng
+
+            return jax.lax.fori_loop(
+                0,
+                num_burn_in_steps,
+                body,
+                (r_prime_pool, sampler_state, rng),
+            )
+            
+        def do_burn(_):
+            rp_out, state_out, _ = burn_in(
+                (r_prime_pool, sampler_state, burn_rng)
+            )
+            return rp_out, state_out, jnp.ones_like(burn_in_counter)
+
+        def skip(_):
+            return r_prime_pool, sampler_state, burn_in_counter
+
+        logging.info(f"Starting burn-in of {num_burn_in_steps} steps of r_prime_pool")
+        r_prime_pool, sampler_state, burn_in_counter = jax.lax.cond(
+            burn_in_counter[0] == 0,
+            do_burn,
+            skip,
+            operand=None,
+        )
+        logging.info("Completed burn-in of r_prime_pool")
 
         # =======================================================
         # 1. MC Step to update r_prime_pool for this batch
         # =======================================================
         # rngs, subkey_mcmc = jax.random.split(rngs)
+        logging.info("Starting MC Step to update r_prime_pool")
         r_prime_pool, aux_stats, sampler_state = self._aux_sampler.step(
             batch_log_prob=self._log_fsum,
             data=r_prime_pool,
             state=sampler_state,
-            rngs=rngs
+            rngs=step_rng
         )
+        logging.info("Completed MC Step to update r_prime_pool")
         
 
         # =======================================================
         # 2. Pair r_prime's in r_prime_pool with each walker in the batch 
         # =======================================================
-        rngs, subkey_1rdm, subkey_2rdm = jax.random.split(rngs, 3)
+        rngs, subkey_1rdm, subkey_2rdm = jax.random.split(sweep_rng, 3)
         sweep_keys_1rdm = jax.random.split(subkey_1rdm, self.n_sweeps)
         sweep_keys_2rdm = jax.random.split(subkey_2rdm, self.n_sweeps)
         
@@ -198,6 +298,7 @@ class OneAndTwoRDM(Estimator):
                 axis=0
             )
             
+        # logging.info(f"Sampling {self.n_sweeps} r_prime's per walker for 1RDM")
         r_prime_sweeps_1rdm = jax.vmap(draw_single_sweep_1rdm)(sweep_keys_1rdm)
         # Swap axes so the main batch dimension is first.
         r_prime_per_walker_1rdm = jnp.swapaxes(r_prime_sweeps_1rdm, 0, 1)  # Shape: (batch_size, n_sweeps, 3)
@@ -206,10 +307,12 @@ class OneAndTwoRDM(Estimator):
         def draw_single_sweep_2rdm(key):
             # Same as in Ferminet rdm.py
             # Each sweep you shuffle, then pair the r_primes up, so get unique pairs
-            rp = jax.random.shuffle(key, r_prime_pool)
+            # rp = jax.random.shuffle(key, r_prime_pool) #I think shuffle got deprecated
+            rp = jax.random.permutation(key, r_prime_pool)
             rp = rp[:2 * batched_data.batch_size, :]
             return rp.reshape((2, batched_data.batch_size, 3))
-            
+        
+        # logging.info(f"Sampling {self.n_sweeps} pairs of r_prime's per walker for 2RDM")
         r_prime_sweeps_2rdm = jax.vmap(draw_single_sweep_2rdm)(sweep_keys_2rdm)
         r_prime_per_walker_2rdm = jnp.transpose(r_prime_sweeps_2rdm, (2, 0, 1, 3))  # Shape: (batch_size, n_sweeps, 2, 3)
         
@@ -227,6 +330,7 @@ class OneAndTwoRDM(Estimator):
             # ---------------------------------------------------
             # Here we assume restricted orbitals? where phi(r) is the same for both up and down spins?
             # So only need to worry about indices in Phi(R/R'/R'')
+            logging.info("Starting calculation of 1RDMs")
             
             varphi_rp_1rdm = self._evaluate_mo(walker_rp_1rdm) #phi(r')
             fsum_rp_1rdm = self._fsum(walker_rp_1rdm) #f(r')
@@ -265,6 +369,7 @@ class OneAndTwoRDM(Estimator):
             # ---------------------------------------------------
             # 2-RDM 
             # ---------------------------------------------------
+            logging.info("Starting calculation of 2RDMs")
             rp1_2rdm = walker_rp_2rdm[:, 0, :]  # Shape: (n_sweeps, 3) r'_a
             rp2_2rdm = walker_rp_2rdm[:, 1, :]  # Shape: (n_sweeps, 3) r'_b
             
@@ -322,6 +427,7 @@ class OneAndTwoRDM(Estimator):
             ) / self.n_sweeps
             
             # ------------------------------------------ Return Stats ---------------------------------------
+            logging.info("Completed RDM calculations")
             return {
                 "unnorm_one_rdm_up": one_rdm_up,
                 "unnorm_one_rdm_down": one_rdm_down,
@@ -334,16 +440,20 @@ class OneAndTwoRDM(Estimator):
         # =======================================================
         # 4. VMAP THE MATH ACROSS ALL WALKERS
         # =======================================================
+        logging.info("Starting batch calculations of RDMs")
         walker_stats = jax.vmap(single_walker_math, in_axes=(batched_data.vmap_axis, 0, 0))(
             batched_data.data, 
             r_prime_per_walker_1rdm,
             r_prime_per_walker_2rdm
         )
+        logging.info("Completed batch calculations of RDMs")
         
         new_state = {
             "r_prime_pool": r_prime_pool, 
-            "sampler_state": sampler_state
+            "sampler_state": self._pad_sampler_state(sampler_state, r_prime_pool.shape[0]), # Repad it!
+            "burn_in_counter": burn_in_counter
         }
+        logging.info("Completed evaluate_batch_walkers()")
         
         return walker_stats, new_state
     
@@ -387,6 +497,7 @@ class OneAndTwoRDM(Estimator):
         )
 
         # 3. Apply normalization
+        logging.info("Normalizing RDMs")
         one_rdm_up = mean_stats["unnorm_one_rdm_up"] / norm_1rdm
         one_rdm_down = mean_stats["unnorm_one_rdm_down"] / norm_1rdm
         
@@ -408,3 +519,5 @@ class OneAndTwoRDM(Estimator):
             # "one_rdm_up:trace": trace_up,
             # "one_rdm_down:trace": trace_down,
         }
+
+#Sc-H chain need at least 4 A100 GPUs for memory!

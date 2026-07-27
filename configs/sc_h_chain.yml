@@ -19,18 +19,6 @@ system:
   ecp:
     Sc: ccecp
 
-# estimators:
-#   enabled:
-#     density: true
-#   density:
-#     axes:
-#       a: 
-#         lattice_index: 0
-#         bins: 100          # Higher resolution for your 1D chain
-#       b: null              # Ignore the 100.0 Bohr vacuum axis
-#       c: null              # Ignore the 100.0 Bohr vacuum axis
-
-
 estimators:
   enabled:
     density: true
@@ -38,8 +26,20 @@ estimators:
     axes:
       a: 
         lattice_index: 0
-        bins: 50          
-      a: 
-        lattice_index: 1
-        bins: 500          
+        bins: 100         
+      b: null              
       c: null             
+
+
+# estimators:
+#   enabled:
+#     density: true
+#   density:
+#     axes:
+#       a: 
+#         lattice_index: 0
+#         bins: 50          
+#       b: 
+#         lattice_index: 1
+#         bins: 500          
+#       c: null             
