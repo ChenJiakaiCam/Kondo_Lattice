@@ -129,7 +129,7 @@ exclude = [
 
 [tool.ruff]
 target-version = "py312"
-exclude = ["src/jaqmc_legacy", "legacy_examples"]
+exclude = ["src/jaqmc_legacy", "legacy_examples", "*.ipynb"]
 
 [tool.ruff.lint]
 # CPY and DOC rules are currently in preview
