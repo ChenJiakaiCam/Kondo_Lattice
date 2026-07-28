@@ -13,7 +13,7 @@ import jax
 from jax import numpy as jnp
 
 from pyscf import lo
-from pyscf.pbc.tools import make_supercell
+from pyscf.pbc.tools.pbc import super_cell
 
 # from ferminet.utils.system import pyscf_mol_to_internal_representation
 # from ferminet.train import init_electrons
@@ -55,6 +55,7 @@ class OneAndTwoRDM(Estimator):
     batch_size: int = 2048          # Default JaQMC run config
     ratio_naux_nbatch: float = 2.0  # From original config
     
+    
     phi_i: Optional[str] = None
     phi_j: Optional[str] = None
     
@@ -73,10 +74,16 @@ class OneAndTwoRDM(Estimator):
         prim_cell = self.scf._cell # pyscf_cell: pyscf.pbc.gto.Cell, equivalent to self._mol in Ferminet rdm.py
         
         # 1. Build the supercell if the matrix was provided in the YAML
+        # Looks like in data_init for SolidData, R is sampled around the supercell, so here we also need to work in supercell 
         if self.supercell_matrix is not None:
-            logging.info(f"Building PySCF supercell using matrix: {self.supercell_matrix}")
-            supcell = make_supercell(prim_cell, self.supercell_matrix)
+            # Extract the [3, 1, 1] diagonal array for the ncopy argument
+            ncopy = [int(self.supercell_matrix[i][i]) for i in range(3)]
+            logging.info(f"Building PySCF supercell using ncopy: {ncopy}")
+            
+            # Make supercell from prim_cell
+            supcell = super_cell(prim_cell, ncopy, wrap_around=False)
         else:
+            logging.info("No supercell specificed, running on unit cell")
             supcell = prim_cell
         
         self._lattice_vectors = jnp.array(supcell.lattice_vectors())
@@ -88,7 +95,10 @@ class OneAndTwoRDM(Estimator):
         
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
-        self._mo_coeff = jnp.array(lo.orth_ao(cell, 'meta-lowdin')) #same as in Ferminet rdm.py
+        self._mo_coeff = jnp.array(lo.orth_ao(supcell, 'meta-lowdin')) #same as in Ferminet rdm.py
+        
+        logging.info(f"phi_i: {self.phi_i}")
+        logging.info(f"phi_j: {self.phi_j}")
         
         # 2. Check if the user specified target orbitals
         if getattr(self, 'phi_i', None) and getattr(self, 'phi_j', None):
@@ -174,7 +184,8 @@ class OneAndTwoRDM(Estimator):
          #r_prime.shape = (int(self.batch_size * self.ratio_naux_nbatch), 3)
         # --------------------------------------------------------
 
-        logging.info(f"Available orbitals: {self.scf._cell.ao_labels()}")
+        logging.info(f"Available orbitals in unit cell: {self.scf._cell.ao_labels()}")
+        logging.info(f"Available orbitals in supercell: {supcell.ao_labels()}")
         #For Sc-H chain this looks like '0 Sc 3s    ', '0 Sc 3dxy  ', '0 Sc 3dyz  ', '0 Sc 3dz^2 ', '0 Sc 3dxz  ', '0 Sc 3dx2-y2', '1 H 1s    ', etc (length 40+!)
         # For H chain with 2 H per unit cell it looks like  ['0 H 1s    ', '0 H 2s    ', '0 H 2px   ', '0 H 2py   ', '0 H 2pz   ', '1 H 1s    ', '1 H 2s    ', '1 H 2px   ', '1 H 2py   ', '1 H 2pz   ']
         return {
@@ -183,6 +194,8 @@ class OneAndTwoRDM(Estimator):
             "burn_in_counter": jnp.zeros_like(r_prime_pool[:, 0], dtype=jnp.int32)
         } #last one is a flag so that r_prime_pool is burned in only once
     
+    
+    # Maybe can use initialize_electrons_gaussian as in src/jaqmc/app/solid/data.py? I think the Ferminet rdm.py used something like that, but because it generates for multi-electron config we'll also have to flatten and cut. After burn-in should be same?
     def _init_electrons(self, key: PRNGKey, num_samples: int) -> jnp.ndarray:
         """Initialize auxiliary electron coordinates for a 1D periodic chain."""
         key_x, key_yz = jax.random.split(key)
@@ -347,6 +360,7 @@ class OneAndTwoRDM(Estimator):
         def single_walker_math(walker_data, walker_rp_1rdm, walker_rp_2rdm):
             electrons = walker_data[self.data_field] #shape: (nelec, 3), electron positions from R
             nelec = electrons.shape[0]
+            logging.info(f"Obtained walker with {nelec} electrons")
             phase, log_mag = self.phase_logpsi(params, walker_data) #phase_logpsi defined in jaqmc/src/jaqmc/app/solid/workflow.py, using function defined in src/jaqmc/app/solid/wavefunction.py
             varphi_r = self._evaluate_mo(electrons)  #phi_i(r), shape: (nelec, norb)         
             
