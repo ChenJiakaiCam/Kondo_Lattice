@@ -15,7 +15,6 @@ from jaqmc.estimator.ecp import ECPEnergy
 from jaqmc.estimator.kinetic import EuclideanKinetic
 from jaqmc.estimator.spin import SpinSquared
 from jaqmc.estimator.total_energy import TotalEnergy
-from .estimator import OneAndTwoRDM
 from jaqmc.geometry.pbc import make_pbc_gaussian_proposal
 from jaqmc.optimizer.kfac import KFACOptimizer
 from jaqmc.optimizer.optax import adam
@@ -35,6 +34,8 @@ from .config import SolidConfig
 from .data import data_init
 from .hamiltonian import PotentialEnergy
 from .wavefunction import SolidWavefunction
+from .estimator import OneAndTwoRDM
+from .estimator import MomentumDistribution
 
 logger = logging.getLogger(__name__)
 
@@ -241,10 +242,20 @@ def make_estimators(
         estimators["density"] = density
         
     if cfg.get("estimators.enabled.rdm", False):
+        # supercell_lattice = jnp.asarray(system_config.supercell_lattice)
         rdm = cfg.get(
             "estimators.rdm",
-            OneAndTwoRDM(phase_logpsi=wf.phase_logpsi, scf=scf),
+            OneAndTwoRDM(phase_logpsi=wf.phase_logpsi, scf=scf, supercell_matrix=system_config.supercell_matrix),
+            
         )
         estimators["rdm"] = rdm
+        
+    if cfg.get("estimators.enabled.momentum_distribution", False):
+            momentum_distribution = cfg.get(
+                "estimators.momentum_distribution",
+                MomentumDistribution(phase_logpsi=wf.phase_logpsi, scf=scf, supercell_matrix=system_config.supercell_matrix),
+                
+            )
+            estimators["momentum_distribution"] = momentum_distribution
     
     return estimators
