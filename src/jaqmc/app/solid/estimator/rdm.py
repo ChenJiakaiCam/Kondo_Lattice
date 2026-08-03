@@ -40,10 +40,12 @@ class OneAndTwoRDM(Estimator):
     Returns spin-separated RDMs (alpha/beta blocks).
     """
 
+    # These get values from make_estimators() in workflow.py
     # f_log_psi: NumericWavefunctionEvaluate = runtime_dep()
     phase_logpsi: WavefunctionEvaluate = runtime_dep()
     scf: PeriodicSCF = runtime_dep() 
     data_field: str = runtime_dep(default="electrons")
+    supercell_matrix: Optional[Sequence[Sequence[int]]] = runtime_dep(default=None)
     
     # one-body sampling MCMC settings 
     # These can be set in the config yaml file, e.g., sc_h_chain_rdm.yml
@@ -59,7 +61,7 @@ class OneAndTwoRDM(Estimator):
     phi_i: Optional[str] = None
     phi_j: Optional[str] = None
     
-    supercell_matrix: Optional[Sequence[Sequence[int]]] = None
+    # supercell_matrix: Optional[Sequence[Sequence[int]]] = None
 
     def init(self, data: SolidData, rngs: PRNGKey) -> dict[str, Any]:
         """ 
@@ -96,6 +98,10 @@ class OneAndTwoRDM(Estimator):
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
         self._mo_coeff = jnp.array(lo.orth_ao(supcell, 'meta-lowdin')) #same as in Ferminet rdm.py
+        
+        # --- NEW: Save the full coefficient matrix for f(r') ---
+        self._mo_coeff_full = self._mo_coeff
+        
         
         logging.info(f"phi_i: {self.phi_i}")
         logging.info(f"phi_j: {self.phi_j}")
@@ -160,29 +166,6 @@ class OneAndTwoRDM(Estimator):
         
         # Get the initial state for the adaptive MCMC
         sampler_state = self._aux_sampler.init(r_prime_pool, rngs)
-        
-        #----------------------------Attempt to add r_prime burn-in in init(), but apparently running this here gives some axis mismatch problem where 'qmc_batch_axis' hasn't been created yet
-        # def burn_in_step(i, val):
-        #     rp, state, key = val
-        #     key, subkey = jax.random.split(key)
-        #     rp, _, state = self._aux_sampler.step(
-        #         batch_log_prob=self._log_fsum,
-        #         data=rp,
-        #         state=state, #contains data like the current width of the proposal distribution, acceptance rate, etc
-        #         rngs=subkey
-        #     )
-        #     return rp, state, key
-        
-        # num_burn_in_steps = 400  #follows rdm_base_config.py
-        
-        # r_prime_pool, sampler_state, _ = jax.lax.fori_loop(
-        #     0, 
-        #     num_burn_in_steps, 
-        #     burn_in_step, 
-        #     (r_prime_pool, sampler_state, key_burn)
-        # ) 
-         #r_prime.shape = (int(self.batch_size * self.ratio_naux_nbatch), 3)
-        # --------------------------------------------------------
 
         logging.info(f"Available orbitals in unit cell: {self.scf._cell.ao_labels()}")
         logging.info(f"Available orbitals in supercell: {supcell.ao_labels()}")
@@ -224,10 +207,15 @@ class OneAndTwoRDM(Estimator):
         """Evaluate localized MOs at positions."""
         aos = self._ao_evaluator(positions, self._kpts)
         return jnp.dot(aos[0], self._mo_coeff)
+    
+    def _evaluate_all_mo(self, positions: jnp.ndarray) -> jnp.ndarray:
+        """Evaluate ALL localized MOs at positions for the MCMC importance weight."""
+        aos = self._ao_evaluator(positions, self._kpts)
+        return jnp.dot(aos[0], self._mo_coeff_full)
 
     def _fsum(self, positions: jnp.ndarray) -> jnp.ndarray:
         """Evaluate f(r) = sum_i |phi_i(r)|^2."""
-        mo = self._evaluate_mo(positions)
+        mo = self._evaluate_all_mo(positions)
         return jnp.sum(jnp.abs(mo)**2, axis=-1)
     
     def _log_fsum(self, data: jnp.ndarray) -> jnp.ndarray:
