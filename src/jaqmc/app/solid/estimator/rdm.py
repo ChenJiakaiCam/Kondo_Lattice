@@ -444,19 +444,18 @@ class OneAndTwoRDM(Estimator):
             unnorm_gamma1_up_ii = jnp.diag(one_rdm_up)
             unnorm_gamma1_down_ii = jnp.diag(one_rdm_down)
             
-            unnorm_gamma2_uu_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_uu)
-            unnorm_gamma2_dd_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_dd)
-            unnorm_gamma2_ud_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_ud)
-            unnorm_gamma2_ud_jiji = jnp.einsum('jiji->ij', unnorm_two_rdm_ud)
+            # unnorm_gamma2_uu_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_uu)
+            # unnorm_gamma2_dd_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_dd)
+            # unnorm_gamma2_ud_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_ud)
+            # unnorm_gamma2_ud_jiji = jnp.einsum('jiji->ij', unnorm_two_rdm_ud)
             
             logging.info("Completed RDM calculations")
             return {
                 "unnorm_gamma1_up_ii": unnorm_gamma1_up_ii,
                 "unnorm_gamma1_down_ii": unnorm_gamma1_down_ii,
-                "unnorm_gamma2_uu_ijij": unnorm_gamma2_uu_ijij,
-                "unnorm_gamma2_dd_ijij": unnorm_gamma2_dd_ijij,
-                "unnorm_gamma2_ud_ijij": unnorm_gamma2_ud_ijij,
-                "unnorm_gamma2_ud_jiji": unnorm_gamma2_ud_jiji,
+                "unnorm_two_rdm_up_up": unnorm_two_rdm_uu,      # Full ijkl tensor
+                "unnorm_two_rdm_down_down": unnorm_two_rdm_dd,  # Full ijkl tensor
+                "unnorm_two_rdm_up_down": unnorm_two_rdm_ud,    # Full ijkl tensor
                 "Ni_sq": Ni_sq,
             }
             
@@ -496,25 +495,28 @@ class OneAndTwoRDM(Estimator):
         # Norm vectors for 1-RDM (ii)
         norm_1rdm_ii = Ni_sq
         
-        # Norm matrices for 2-RDM (ijij) and (jiji)
-        norm_2rdm_ijij = Ni_sq[:, None] * Ni_sq[None, :]
+        # Norm tensors for 2-RDM (ijkl) - Outer product of 4 normalization vectors
+        norm_2rdm = jnp.sqrt(
+            Ni_sq[:, None, None, None] * 
+            Ni_sq[None, :, None, None] * 
+            Ni_sq[None, None, :, None] * 
+            Ni_sq[None, None, None, :]
+        )
 
         # Apply normalization
         gamma1_up_ii = mean_stats["unnorm_gamma1_up_ii"] / norm_1rdm_ii
         gamma1_down_ii = mean_stats["unnorm_gamma1_down_ii"] / norm_1rdm_ii
         
-        gamma2_uu_ijij = mean_stats["unnorm_gamma2_uu_ijij"] / norm_2rdm_ijij
-        gamma2_dd_ijij = mean_stats["unnorm_gamma2_dd_ijij"] / norm_2rdm_ijij
-        gamma2_ud_ijij = mean_stats["unnorm_gamma2_ud_ijij"] / norm_2rdm_ijij
-        gamma2_ud_jiji = mean_stats["unnorm_gamma2_ud_jiji"] / norm_2rdm_ijij
+        two_rdm_uu = mean_stats["unnorm_two_rdm_up_up"] / norm_2rdm
+        two_rdm_dd = mean_stats["unnorm_two_rdm_down_down"] / norm_2rdm
+        two_rdm_ud = mean_stats["unnorm_two_rdm_up_down"] / norm_2rdm
 
         result = {
             "gamma1_up_ii": gamma1_up_ii,
             "gamma1_down_ii": gamma1_down_ii,
-            "gamma2_uu_ijij": gamma2_uu_ijij,
-            "gamma2_dd_ijij": gamma2_dd_ijij,
-            "gamma2_ud_ijij": gamma2_ud_ijij,
-            "gamma2_ud_jiji": gamma2_ud_jiji,
+            "two_rdm_up_up": two_rdm_uu,         # Full 4D tensor
+            "two_rdm_down_down": two_rdm_dd,     # Full 4D tensor
+            "two_rdm_up_down": two_rdm_ud,       # Full 4D tensor
         }
         
         return result
