@@ -56,10 +56,7 @@ class OneAndTwoRDM(Estimator):
     # Batching parameters needed for the auxiliary pool
     batch_size: int = 2048          # Default JaQMC run config
     ratio_naux_nbatch: float = 2.0  # From original config
-    
-    
-    phi_i: Optional[str] = None
-    phi_j: Optional[str] = None
+    rdm_orbitals: list[str] | None = None
     
     # supercell_matrix: Optional[Sequence[Sequence[int]]] = None
 
@@ -103,28 +100,16 @@ class OneAndTwoRDM(Estimator):
         self._mo_coeff_full = self._mo_coeff
         
         
-        logging.info(f"phi_i: {self.phi_i}")
-        logging.info(f"phi_j: {self.phi_j}")
-        
-        # 2. Check if the user specified target orbitals
-        if getattr(self, 'phi_i', None) and getattr(self, 'phi_j', None):
-            
-            # Search for the indices
-            indices_i = supcell.search_ao_label(self.phi_i)
-            indices_j = supcell.search_ao_label(self.phi_j)
-            
-            # Assert that the search returned exactly one match
-            assert len(indices_i) == 1, f"Expected exactly 1 match for phi_i ('{self.phi_i}'), but found {len(indices_i)}: {indices_i}"
-            assert len(indices_j) == 1, f"Expected exactly 1 match for phi_j ('{self.phi_j}'), but found {len(indices_j)}: {indices_j}"
-            
-            # Safely extract the single integer index
-            idx_i = indices_i[0]
-            idx_j = indices_j[0]
-            
-            # Slice self._mo_coeff down from (N_AO, N_AO) to (N_AO, 2) (N_AO for Sc in ecp is ~40!)
-            self._mo_coeff = self._mo_coeff[:, [idx_i, idx_j]]
-            
-            logging.info(f"Sliced self._mo_coeff for specific orbitals: {self.phi_i} (idx {idx_i}) and {self.phi_j} (idx {idx_j})")
+        # If specific orbitals are provided, slice the MO coefficients to only compute for those orbitals
+        if self.rdm_orbitals is not None:
+            indices = []
+            for orb in self.rdm_orbitals:
+                matches = supcell.search_ao_label(orb)
+                assert len(matches) == 1, f"Expected exactly 1 match for orbital '{orb}', but found {len(matches)}: {matches}"
+                indices.append(matches[0])
+                
+            self._mo_coeff = self._mo_coeff[:, indices]
+            logging.info(f"Sliced self._mo_coeff for specific orbitals: {self.rdm_orbitals} (indices {indices})")
             
         # In the H-chain paper it's using next-nearest-neighbour cutoff. I think here it's different by using PBCAtomicOrbitalEvaluator's estimate_rcut
         self._ao_evaluator = PBCAtomicOrbitalEvaluator.from_pyscf(supcell) #Later use with _mo_coeff to get localized meta-Lowdin orbitals
@@ -454,21 +439,25 @@ class OneAndTwoRDM(Estimator):
             ) / self.n_sweeps
             
             # ------------------------------------------ Return Stats ---------------------------------------
+            # Instead of returning the full tensors which are N^4, we return the ii vectors (N,) and ijij matrices (N, N)
+            
+            unnorm_gamma1_up_ii = jnp.diag(one_rdm_up)
+            unnorm_gamma1_down_ii = jnp.diag(one_rdm_down)
+            
+            unnorm_gamma2_uu_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_uu)
+            unnorm_gamma2_dd_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_dd)
+            unnorm_gamma2_ud_ijij = jnp.einsum('ijij->ij', unnorm_two_rdm_ud)
+            unnorm_gamma2_ud_jiji = jnp.einsum('jiji->ij', unnorm_two_rdm_ud)
+            
             logging.info("Completed RDM calculations")
             return {
-                # 1-RDM terms (unnormalized)
-                "unnorm_gamma1_up_ii": one_rdm_up[0, 0],
-                "unnorm_gamma1_down_ii": one_rdm_down[0, 0],
-                
-                # 2-RDM terms (unnormalized)
-                "unnorm_gamma2_uu_ijij": unnorm_two_rdm_uu[0, 1, 0, 1],
-                "unnorm_gamma2_dd_ijij": unnorm_two_rdm_dd[0, 1, 0, 1],
-                "unnorm_gamma2_ud_ijij": unnorm_two_rdm_ud[0, 1, 0, 1],
-                "unnorm_gamma2_ud_jiji": unnorm_two_rdm_ud[1, 0, 1, 0],
-                
-                # Normalization factors for the specific orbitals
-                "Ni_sq_i": Ni_sq[0],
-                "Ni_sq_j": Ni_sq[1],
+                "unnorm_gamma1_up_ii": unnorm_gamma1_up_ii,
+                "unnorm_gamma1_down_ii": unnorm_gamma1_down_ii,
+                "unnorm_gamma2_uu_ijij": unnorm_gamma2_uu_ijij,
+                "unnorm_gamma2_dd_ijij": unnorm_gamma2_dd_ijij,
+                "unnorm_gamma2_ud_ijij": unnorm_gamma2_ud_ijij,
+                "unnorm_gamma2_ud_jiji": unnorm_gamma2_ud_jiji,
+                "Ni_sq": Ni_sq,
             }
             
         # =======================================================
@@ -498,74 +487,28 @@ class OneAndTwoRDM(Estimator):
     def finalize_stats(
         self, batched_stats: Mapping[str, Any], state: Any
     ) -> dict[str, Any]:
-        """Average over steps and normalize the RDMs.
-        
-        Args:
-            batched_stats: Dictionary containing step-averaged values over the entire run. 
-                           Each value has shape (n_steps, ...).
-            state: Unused here.
-            
-        Returns:
-            Dictionary containing final, normalized 1-RDM and 2-RDM matrices, 
-            along with optional diagnostics like traces.
-        """
-        # 1. Average the step-level statistics over all MCMC steps (axis 0)
         mean_stats = {
             k: jnp.nanmean(v, axis=0) for k, v in batched_stats.items()
         }
         
-        # # 2. Extract the normalization factors
-        # # Ni_sq has shape (n_orbitals,)
-        # Ni_sq = mean_stats["Ni_sq"]
+        Ni_sq = mean_stats["Ni_sq"]
         
-        # # Norm matrices for 1-RDM (outer product of normalization vectors)
-        # norm_1rdm = jnp.sqrt(Ni_sq[:, None] * Ni_sq[None, :])
+        # Norm vectors for 1-RDM (ii)
+        norm_1rdm_ii = Ni_sq
         
-        # # Norm tensors for 2-RDM (outer product of 4 normalization vectors)
-        # # We need sqrt(Ni^2 * Nj^2 * Nk^2 * Nl^2)
-        # norm_2rdm = jnp.sqrt(
-        #     Ni_sq[:, None, None, None] * 
-        #     Ni_sq[None, :, None, None] * 
-        #     Ni_sq[None, None, :, None] * 
-        #     Ni_sq[None, None, None, :]
-        # )
-        
-        #
+        # Norm matrices for 2-RDM (ijij) and (jiji)
+        norm_2rdm_ijij = Ni_sq[:, None] * Ni_sq[None, :]
 
-        # # 3. Apply normalization
-        # logging.info("Normalizing RDMs")
-        # one_rdm_up = mean_stats["unnorm_one_rdm_up"] / norm_1rdm
-        # one_rdm_down = mean_stats["unnorm_one_rdm_down"] / norm_1rdm
+        # Apply normalization
+        gamma1_up_ii = mean_stats["unnorm_gamma1_up_ii"] / norm_1rdm_ii
+        gamma1_down_ii = mean_stats["unnorm_gamma1_down_ii"] / norm_1rdm_ii
         
-        # two_rdm_uu = mean_stats["unnorm_two_rdm_up_up"] / norm_2rdm
-        # two_rdm_dd = mean_stats["unnorm_two_rdm_down_down"] / norm_2rdm
-        # two_rdm_ud = mean_stats["unnorm_two_rdm_up_down"] / norm_2rdm
-        
-        # 2. Extract the normalization factors
-        Ni_sq_i = mean_stats["Ni_sq_i"]
-        Ni_sq_j = mean_stats["Ni_sq_j"]
-        
-        # 3. Apply normalization
-        logging.info("Normalizing RDMs")
-        
-        # 1-RDM normalization factor for diagonal terms is just Ni^2
-        gamma1_up_ii = mean_stats["unnorm_gamma1_up_ii"] / Ni_sq_i
-        gamma1_down_ii = mean_stats["unnorm_gamma1_down_ii"] / Ni_sq_i
-        
-        # 2-RDM normalization factor for ijij/jiji terms is Ni^2 * Nj^2
-        norm_2rdm = Ni_sq_i * Ni_sq_j
-        
-        gamma2_uu_ijij = mean_stats["unnorm_gamma2_uu_ijij"] / norm_2rdm
-        gamma2_dd_ijij = mean_stats["unnorm_gamma2_dd_ijij"] / norm_2rdm
-        gamma2_ud_ijij = mean_stats["unnorm_gamma2_ud_ijij"] / norm_2rdm
-        gamma2_ud_jiji = mean_stats["unnorm_gamma2_ud_jiji"] / norm_2rdm
+        gamma2_uu_ijij = mean_stats["unnorm_gamma2_uu_ijij"] / norm_2rdm_ijij
+        gamma2_dd_ijij = mean_stats["unnorm_gamma2_dd_ijij"] / norm_2rdm_ijij
+        gamma2_ud_ijij = mean_stats["unnorm_gamma2_ud_ijij"] / norm_2rdm_ijij
+        gamma2_ud_jiji = mean_stats["unnorm_gamma2_ud_jiji"] / norm_2rdm_ijij
 
-        # # Calculate traces as quick sanity checks (Total number of electrons/pairs)
-        # trace_up = jnp.trace(one_rdm_up)
-        # trace_down = jnp.trace(one_rdm_down)
-
-        # Return the final polished output
-        return {
+        result = {
             "gamma1_up_ii": gamma1_up_ii,
             "gamma1_down_ii": gamma1_down_ii,
             "gamma2_uu_ijij": gamma2_uu_ijij,
@@ -573,3 +516,5 @@ class OneAndTwoRDM(Estimator):
             "gamma2_ud_ijij": gamma2_ud_ijij,
             "gamma2_ud_jiji": gamma2_ud_jiji,
         }
+        
+        return result
