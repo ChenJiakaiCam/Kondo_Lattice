@@ -32,10 +32,9 @@ from jaqmc.workflow.vmc import VMCWorkflow
 
 from .config import SolidConfig
 from .data import data_init
+from .estimator import MomentumDistribution, OneAndTwoRDM, StructureFactor
 from .hamiltonian import PotentialEnergy
 from .wavefunction import SolidWavefunction
-from .estimator import OneAndTwoRDM
-from .estimator import MomentumDistribution
 
 logger = logging.getLogger(__name__)
 
@@ -225,6 +224,13 @@ def make_estimators(
                 phase_logpsi=wf.phase_logpsi,
             ),
         )
+    if cfg.get("estimators.enabled.structure_factor", False):
+        estimators["structure_factor"] = cfg.get(
+            "estimators.structure_factor",
+            StructureFactor(
+                nspins=system_config.electron_spins,
+            ),
+        )
     if cfg.get("estimators.enabled.density", False):
         supercell_lattice = jnp.asarray(system_config.supercell_lattice)
         inv_lattice = jnp.linalg.inv(supercell_lattice)
@@ -240,22 +246,27 @@ def make_estimators(
         )
         wire(density, inv_lattice=inv_lattice)
         estimators["density"] = density
-        
+
     if cfg.get("estimators.enabled.rdm", False):
         # supercell_lattice = jnp.asarray(system_config.supercell_lattice)
         rdm = cfg.get(
             "estimators.rdm",
-            OneAndTwoRDM(phase_logpsi=wf.phase_logpsi, scf=scf, supercell_matrix=system_config.supercell_matrix),
-            
+            OneAndTwoRDM(
+                phase_logpsi=wf.phase_logpsi,
+                scf=scf,
+                supercell_matrix=system_config.supercell_matrix,
+            ),
         )
         estimators["rdm"] = rdm
-        
+
     if cfg.get("estimators.enabled.momentum_distribution", False):
-            momentum_distribution = cfg.get(
-                "estimators.momentum_distribution",
-                MomentumDistribution(phase_logpsi=wf.phase_logpsi, scf=scf, supercell_matrix=system_config.supercell_matrix),
-                
-            )
-            estimators["momentum_distribution"] = momentum_distribution
-    
+        momentum_distribution = cfg.get(
+            "estimators.momentum_distribution",
+            MomentumDistribution(
+                phase_logpsi=wf.phase_logpsi,
+                scf=scf,
+            ),
+        )
+        estimators["momentum_distribution"] = momentum_distribution
+
     return estimators
