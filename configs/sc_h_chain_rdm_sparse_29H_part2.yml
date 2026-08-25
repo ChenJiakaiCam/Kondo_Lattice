@@ -1,0 +1,156 @@
+system:
+  lattice_vectors:            # 3x3 primitive cell vectors (Bohr)
+  # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
+    - [113.40, 0.0, 0.0]
+    - [0.0, 100.0, 0.0]
+    - [0.0, 0.0, 100.0] 
+  atoms:
+    - symbol: Sc
+      coords: [0.0, 0.0, 0.0]
+      charge: 11.0
+    - symbol: H
+      coords: [3.78, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [7.56, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [11.34, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [15.12, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [18.90, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [22.68, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [26.46, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [30.24, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [34.02, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [37.80, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [41.58, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [45.36, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [49.14, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [52.92, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [56.70, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [60.48, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [64.26, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [68.04, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [71.82, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [75.60, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [79.38, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [83.16, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [86.94, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [90.72, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [94.50, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [98.28, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [102.06, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [105.84, 0.0, 0.0]
+      charge: 1.0
+    - symbol: H
+      coords: [109.62, 0.0, 0.0]
+      charge: 1.0
+  
+  electron_spins: [20, 20]     
+  basis: 
+    Sc: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Sc: ccecp
+  # supercell_matrix: 
+  #   [[1, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
+
+estimators:
+  enabled:
+    rdm: true
+  
+  rdm:
+    n_sweeps: 1
+    aux_steps: 10       
+    batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
+    rdm_orbitals: 
+      - '0 Sc 4s'
+      - '0 Sc 3dxy'
+      - '0 Sc 3dyz'
+      - '0 Sc 3dz^2'
+      - '0 Sc 3dxz'
+      - '0 Sc 3dx2-y2'
+      # - '1 H 1s' # Assume conduction band formed by hybridization of Sc 4s and H 1s orbitals only
+      # - '2 H 1s'
+      # - '3 H 1s'
+      # - '4 H 1s'
+      # - '5 H 1s'
+      # - '6 H 1s' 
+      # - '7 H 1s'
+      # - '8 H 1s'
+      # - '9 H 1s'
+      # - '10 H 1s'
+      # - '11 H 1s'
+      # - '12 H 1s'
+      # - '13 H 1s'
+      # - '14 H 1s'
+      # - '15 H 1s'
+      # - '16 H 1s' 
+      # - '17 H 1s'
+      # - '18 H 1s'
+      - '19 H 1s'
+      - '20 H 1s'
+      - '21 H 1s'
+      - '22 H 1s'
+      - '23 H 1s'
+      - '24 H 1s'
+      - '25 H 1s' 
+      - '26 H 1s'
+      - '27 H 1s'
+      - '28 H 1s'
+      - '29 H 1s'
+
+train:
+  writers:
+    console: null
+    csv: null

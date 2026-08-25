@@ -9,7 +9,7 @@
 
 #! sbatch directives begin here ###############################
 #! Name of the job:
-#SBATCH -J sc_h_chain
+#SBATCH -J sch10.0_631g
 #! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
@@ -18,8 +18,10 @@
 #SBATCH --ntasks=1
 #! Specify the number of GPUs per node
 #SBATCH --gres=gpu:4
+#! Specify the number of CPUs per task
+#SBATCH --cpus-per-task=128
 #! How much wallclock time will be required?
-#SBATCH --time=03:00:00
+#SBATCH --time=02:00:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
@@ -45,19 +47,60 @@ module purge
 # For GPU
 module load rhel8/default-amp
 module load gcc/11
+module load cuda/12.1
 
 source /rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/activate
 
+# ==============================================================================
+# --- DYNAMICALLY LOAD ALL VENV NVIDIA LIBRARIES ---
+# ==============================================================================
+export VENV_LIB="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages"
+
+for libdir in "$VENV_LIB"/nvidia/*/lib; do
+    export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
+done
+# ==============================================================================
 
 
-export OMP_NUM_THREADS=1
+
+export OMP_NUM_THREADS=32
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
 CMD="jaqmc solid train \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.78_spin_6_6 \
+  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_10.0_631g.yml \
+  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_10.0_spin_6_6_631g \
   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_4.3.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_4.3_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_5.0.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_5.0_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_3.25.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.25_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_5.5.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_5.5_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_10.0.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_10.0_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
+
+# CMD="jaqmc solid train \
+#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_7.0.yml \
+#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_7.0_spin_6_6 \
+#   pretrain.run.iterations=1000 train.run.iterations=10000"
 
 ###############################################################
 ### You should not have to change anything below this line ####

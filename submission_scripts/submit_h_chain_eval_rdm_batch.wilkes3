@@ -9,7 +9,7 @@
 
 #! sbatch directives begin here ###############################
 #! Name of the job:
-#SBATCH -J jaqmc_fechain
+#SBATCH -J h_chain_eval_batch
 #! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
@@ -19,11 +19,17 @@
 #! Specify the number of GPUs per node
 #SBATCH --gres=gpu:4
 #! How much wallclock time will be required?
-#SBATCH --time=03:00:00
+#SBATCH --time=00:10:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
 ##SBATCH --no-requeue
+
+#! Submit a job array with index values between 1 and 5
+#SBATCH --array=1-5
+#! Output and Error filenames (%A is the job array ID, %a is the array index):
+#SBATCH --output=h_chain_eval_%A_%a.out
+#SBATCH --error=h_chain_eval_%A_%a.err
 
 #! Do not change:
 #SBATCH -p ampere
@@ -45,19 +51,32 @@ module purge
 # For GPU
 module load rhel8/default-amp
 module load gcc/11
+module load cuda/12.1
 
 source /rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/activate
 
+# ==============================================================================
+# --- DYNAMICALLY LOAD ALL VENV NVIDIA LIBRARIES ---
+# ==============================================================================
+export VENV_LIB="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages"
 
+for libdir in "$VENV_LIB"/nvidia/*/lib; do
+    export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
+done
+# ==============================================================================
 
 export OMP_NUM_THREADS=1
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
-CMD="jaqmc solid train \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/fe_chain.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/fe_chain_3.78_spin_8 \
-  pretrain.run.iterations=1000 train.run.iterations=10000"
+# Grab the array index for this specific job task
+J_IDX=$SLURM_ARRAY_TASK_ID
+
+# Use J_IDX to dynamically format the yml file name and save_path
+CMD="jaqmc solid evaluate --yml ./configs/h_chain_rdm_i0j${J_IDX}.yml \
+workflow.save_path=./runs/h_chain_3.78_rdm_i0j${J_IDX}_eval_new_correctf \
+workflow.source_path=./runs/h_chain_3.78_rdm_full_new \
+workflow.config.ignore_extra=True"
 
 ###############################################################
 ### You should not have to change anything below this line ####
@@ -69,6 +88,7 @@ echo -e "Changed directory to `pwd`.\n"
 JOBID=$SLURM_JOB_ID
 
 echo -e "JobID: $JOBID\n======"
+echo "Array Task ID: $SLURM_ARRAY_TASK_ID"
 echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
@@ -76,9 +96,9 @@ echo "Current directory: `pwd`"
 if [ "$SLURM_JOB_NODELIST" ]; then
         #! Create a machine file:
         export NODEFILE=`generate_pbs_nodefile`
-        cat $NODEFILE | uniq > machine.file.$JOBID
+        cat $NODEFILE | uniq > machine.file.${JOBID}_${SLURM_ARRAY_TASK_ID}
         echo -e "\nNodes allocated:\n================"
-        echo `cat machine.file.$JOBID | sed -e 's/\..*$//g'`
+        echo `cat machine.file.${JOBID}_${SLURM_ARRAY_TASK_ID} | sed -e 's/\..*$//g'`
 fi
 
 echo -e "\nnumtasks=$numtasks, numnodes=$numnodes, mpi_tasks_per_node=$mpi_tasks_per_node (OMP_NUM_THREADS=$OMP_NUM_THREADS)"

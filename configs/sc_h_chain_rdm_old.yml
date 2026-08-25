@@ -11,35 +11,41 @@ system:
     - symbol: H
       coords: [3.78, 0.0, 0.0]
       charge: 1.0
-    
+  # Sc (with ccecp): 21 total electrons - 10 core = 11 valence electrons. H: 1 valence electron. Total = 12 electrons per unit cell. 
   electron_spins: [6, 6]     
   basis: 
     Sc: ccecpccpvdz
     H: cc-pvdz
   ecp:
     Sc: ccecp
-  # supercell_matrix: 
-  #   [[3, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
 
 estimators:
   enabled:
     rdm: true
   
   rdm:
-    n_sweeps: 5
+    n_sweeps: 2
     aux_steps: 10       
     batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
-    rdm_orbitals: 
-      - '0 Sc 4s'
-      - '0 Sc 3dxy'
-      - '0 Sc 3dyz'
-      - '0 Sc 3dz\^2'
-      - '0 Sc 3dxz'
-      - '0 Sc 3dx2-y2'
-      - '1 H 1s' # Assume conduction band formed by hybridization of Sc 4s and H 1s orbitals only
-      
+    phi_i: '0 Sc 3dxy'
+    phi_j: '1 H 1s'
 
+# Needs this to prevent some writer errors
 train:
   writers:
     console: null
     csv: null
+
+
+# estimators:
+#   enabled:
+#     density: true
+#   density:
+#     axes:
+#       a: 
+#         lattice_index: 0
+#         bins: 50          
+#       b: 
+#         lattice_index: 1
+#         bins: 500          
+#       c: null             

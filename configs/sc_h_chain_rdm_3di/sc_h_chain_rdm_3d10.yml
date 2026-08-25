@@ -18,8 +18,6 @@ system:
     H: cc-pvdz
   ecp:
     Sc: ccecp
-  # supercell_matrix: 
-  #   [[3, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
 
 estimators:
   enabled:
@@ -29,15 +27,8 @@ estimators:
     n_sweeps: 5
     aux_steps: 10       
     batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
-    rdm_orbitals: 
-      - '0 Sc 4s'
-      - '0 Sc 3dxy'
-      - '0 Sc 3dyz'
-      - '0 Sc 3dz\^2'
-      - '0 Sc 3dxz'
-      - '0 Sc 3dx2-y2'
-      - '1 H 1s' # Assume conduction band formed by hybridization of Sc 4s and H 1s orbitals only
-      
+    phi_i:  '0 Sc 3dyz'
+    phi_j: '0 Sc 3dz\^2'
 
 train:
   writers:

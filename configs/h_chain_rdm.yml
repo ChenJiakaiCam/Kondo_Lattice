@@ -1,7 +1,20 @@
 system:
+  # lattice_vectors:            # 3x3 primitive cell vectors (Bohr)
+  # # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
+  #   - [7.56, 0.0, 0.0]
+  #   - [0.0, 100.0, 0.0]
+  #   - [0.0, 0.0, 100.0] 
+  # atoms:
+  #   - symbol: H
+  #     coords: [0.0, 0.0, 0.0]
+  #     charge: 1.0
+  #   - symbol: H
+  #     coords: [3.78, 0.0, 0.0]
+  #     charge: 1.0
+
   lattice_vectors:            # 3x3 primitive cell vectors (Bohr)
   # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
-    - [7.56, 0.0, 0.0]
+    - [5.6, 0.0, 0.0]
     - [0.0, 100.0, 0.0]
     - [0.0, 0.0, 100.0] 
   atoms:
@@ -9,7 +22,7 @@ system:
       coords: [0.0, 0.0, 0.0]
       charge: 1.0
     - symbol: H
-      coords: [3.78, 0.0, 0.0]
+      coords: [2.8, 0.0, 0.0]
       charge: 1.0
     
   electron_spins: [1, 1]     
@@ -26,9 +39,14 @@ estimators:
     n_sweeps: 5
     aux_steps: 10       
     batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
-    phi_i: '0 H 1s'
-    phi_j: '3 H 1s'
-    supercell_matrix: [[3, 0, 0], [0, 1, 0], [0, 0, 1]]
+    rdm_orbitals: 
+      - '0 H 1s'
+      - '1 H 1s' 
+      - '2 H 1s'
+      - '3 H 1s'
+      - '4 H 1s'
+      - '5 H 1s'
+      
 
 train:
   writers:

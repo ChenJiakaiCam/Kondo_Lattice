@@ -11,7 +11,7 @@ system:
     - symbol: H
       coords: [3.78, 0.0, 0.0]
       charge: 1.0
-    
+  # Sc (with ccecp): 21 total electrons - 10 core = 11 valence electrons. H: 1 valence electron. Total = 12 electrons per unit cell. 
   electron_spins: [6, 6]     
   basis: 
     Sc: ccecpccpvdz
@@ -21,19 +21,14 @@ system:
   supercell_matrix: 
     [[3, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
 
-# estimators:
-#   enabled:
-#     rdm: true
-  
-  # rdm:
-  #   n_sweeps: 5
-  #   aux_steps: 10       
-  #   batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
-  #   phi_i: '0 H 1s'
-  #   phi_j: '3 H 1s'
-  #   # supercell_matrix: [[3, 0, 0], [0, 1, 0], [0, 0, 1]] #rdm needs this...maybe find another way to reduce repetition...
-
-# train:
-#   writers:
-#     console: null
-#     csv: null
+estimators:
+  enabled:
+    density: true
+  density:
+    axes:
+      a: 
+        lattice_index: 0
+        bins: 100         
+      b: null              
+      c: null             
+      

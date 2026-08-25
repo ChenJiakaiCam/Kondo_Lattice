@@ -9,7 +9,7 @@
 
 #! sbatch directives begin here ###############################
 #! Name of the job:
-#SBATCH -J jaqmc_hchain
+#SBATCH -J sc_h_chain_eval_batch_gaussian_init
 #! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
@@ -18,12 +18,20 @@
 #SBATCH --ntasks=1
 #! Specify the number of GPUs per node
 #SBATCH --gres=gpu:4
+#! Specify the number of CPUs per task
+#SBATCH --cpus-per-task=128
 #! How much wallclock time will be required?
-#SBATCH --time=03:00:00
+#SBATCH --time=00:11:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
 ##SBATCH --no-requeue
+
+#! Submit a job array with index values between 0 and 5 (6 values total)
+#SBATCH --array=0-5
+#! Output and Error filenames (%A is the job array ID, %a is the array index):
+#SBATCH --output=sc_h_chain_eval_%A_%a.out
+#SBATCH --error=sc_h_chain_eval_%A_%a.err
 
 #! Do not change:
 #SBATCH -p ampere
@@ -45,18 +53,35 @@ module purge
 # For GPU
 module load rhel8/default-amp
 module load gcc/11
+module load cuda/12.1
 
 source /rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/activate
 
+# ==============================================================================
+# --- DYNAMICALLY LOAD ALL VENV NVIDIA LIBRARIES ---
+# ==============================================================================
+export VENV_LIB="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages"
 
+for libdir in "$VENV_LIB"/nvidia/*/lib; do
+    export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
+done
+# ==============================================================================
 
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=32
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
-CMD="jaqmc solid train \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/hydrogen_chain.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_1.8"
+# Define the array of parameter values
+PARAMS=(2.8 4.2 5.0 5.5 7.0 10.0)
+
+# Select the parameter matching this array task's index (0-5)
+PARAM_VAL=${PARAMS[$SLURM_ARRAY_TASK_ID]}
+
+# Dynamically construct the command substituting PARAM_VAL into all three paths
+CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_${PARAM_VAL}_rdm_gaussian_init.yml \
+workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_${PARAM_VAL}_rdm_eval_gaussian_init \
+workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_${PARAM_VAL}_spin_6_6 \
+workflow.config.ignore_extra=True"
 
 ###############################################################
 ### You should not have to change anything below this line ####
@@ -68,6 +93,7 @@ echo -e "Changed directory to `pwd`.\n"
 JOBID=$SLURM_JOB_ID
 
 echo -e "JobID: $JOBID\n======"
+echo "Array Task ID: $SLURM_ARRAY_TASK_ID (Param: $PARAM_VAL)"
 echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
@@ -75,9 +101,9 @@ echo "Current directory: `pwd`"
 if [ "$SLURM_JOB_NODELIST" ]; then
         #! Create a machine file:
         export NODEFILE=`generate_pbs_nodefile`
-        cat $NODEFILE | uniq > machine.file.$JOBID
+        cat $NODEFILE | uniq > machine.file.${JOBID}_${SLURM_ARRAY_TASK_ID}
         echo -e "\nNodes allocated:\n================"
-        echo `cat machine.file.$JOBID | sed -e 's/\..*$//g'`
+        echo `cat machine.file.${JOBID}_${SLURM_ARRAY_TASK_ID} | sed -e 's/\..*$//g'`
 fi
 
 echo -e "\nnumtasks=$numtasks, numnodes=$numnodes, mpi_tasks_per_node=$mpi_tasks_per_node (OMP_NUM_THREADS=$OMP_NUM_THREADS)"

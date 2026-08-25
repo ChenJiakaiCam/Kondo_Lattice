@@ -1,0 +1,151 @@
+#!/bin/bash
+#!
+#! Example SLURM job script for Wilkes3 (AMD EPYC 7763, ConnectX-6, A100)
+#!
+
+#!#############################################################
+#!#### Modify the options in this section as appropriate ######
+#!#############################################################
+
+#! sbatch directives begin here ###############################
+#! Name of the job:
+#SBATCH -J sch10.0_631g_eval
+#! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
+#SBATCH -A SCHEMM-SL3-GPU
+#! How many whole nodes should be allocated?
+#SBATCH --nodes=1
+#! How many (MPI) tasks will there be in total?
+#SBATCH --ntasks=1
+#! Specify the number of GPUs per node
+#SBATCH --gres=gpu:4
+#! Specify the number of CPUs per task
+#SBATCH --cpus-per-task=128
+#! How much wallclock time will be required?
+#SBATCH --time=00:30:00
+#! What types of email messages do you wish to receive?
+#SBATCH --mail-type=ALL
+#! Uncomment this to prevent the job from being requeued
+##SBATCH --no-requeue
+
+#! Do not change:
+#SBATCH -p ampere
+
+#! sbatch directives end here (put any additional directives above this line)
+
+numnodes=$SLURM_JOB_NUM_NODES
+numtasks=$SLURM_NTASKS
+mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
+#! Work directory (i.e. where the job will run):
+workdir="$SLURM_SUBMIT_DIR"  # The value of SLURM_SUBMIT_DIR sets workdir to the directory
+                             # in which sbatch is run.
+
+#!#############################################################
+
+. /etc/profile.d/modules.sh
+
+module purge
+# For GPU
+module load rhel8/default-amp
+module load gcc/11
+module load cuda/12.1
+
+source /rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/bin/activate
+
+# ==============================================================================
+# --- DYNAMICALLY LOAD ALL VENV NVIDIA LIBRARIES ---
+# ==============================================================================
+export VENV_LIB="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/.venv/lib/python3.12/site-packages"
+
+for libdir in "$VENV_LIB"/nvidia/*/lib; do
+    export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
+done
+# ==============================================================================
+
+
+export OMP_NUM_THREADS=32
+
+np=$[${numnodes}*${mpi_tasks_per_node}]
+# CMD="jaqmc solid evaluate --yml ./configs/sc_h_chain_rdm_multiple.yml \
+# workflow.save_path=./runs/sc_h_3.78_rdm_multiple_all_new \
+# workflow.source_path=./runs/sc_h_chain_3.78_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+CMD="jaqmc solid evaluate --yml ./configs/sc_h_chain_rdm_10.0_631g.yml \
+workflow.save_path=./runs/sc_h_chain_10.0_rdm_631g_eval \
+workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_10.0_spin_6_6_631g \
+workflow.config.ignore_extra=True \
+run.iterations=500 \
+run.save_step_interval=100 \
+"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_4.3.yml \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_4.2_rdm_eval \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_4.3_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_3.25.yml \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.25_rdm_eval \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.25_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_sparse.yml \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_rdm_sparse_rdm_eval \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.78_rdm_full_new_sparse \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_sparse_9H.yml \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_rdm_sparse_9H_eval \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_rdm_sparse_9H \
+# run.iterations=1000 \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_5.5.yml  \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_5.5_rdm_eval \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_5.5_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_7.0.yml  \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_7.0_rdm_eval_40000_burn_in_2.0_init_width \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_7.0_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_2.8_rdm_gaussian_init.yml  \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_2.8_rdm_eval_gaussian_init \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_2.8_spin_6_6 \
+# workflow.config.ignore_extra=True"
+
+# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_sparse_29H_part1.yml \
+# workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_rdm_sparse_rdm_eval_29H_part1 \
+# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_rdm_sparse_29H \
+# workflow.config.ignore_extra=True"
+
+
+
+###############################################################
+### You should not have to change anything below this line ####
+###############################################################
+
+cd $workdir
+echo -e "Changed directory to `pwd`.\n"
+
+JOBID=$SLURM_JOB_ID
+
+echo -e "JobID: $JOBID\n======"
+echo "Time: `date`"
+echo "Running on master node: `hostname`"
+echo "Current directory: `pwd`"
+
+if [ "$SLURM_JOB_NODELIST" ]; then
+        #! Create a machine file:
+        export NODEFILE=`generate_pbs_nodefile`
+        cat $NODEFILE | uniq > machine.file.$JOBID
+        echo -e "\nNodes allocated:\n================"
+        echo `cat machine.file.$JOBID | sed -e 's/\..*$//g'`
+fi
+
+echo -e "\nnumtasks=$numtasks, numnodes=$numnodes, mpi_tasks_per_node=$mpi_tasks_per_node (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
+
+echo -e "\nExecuting command:\n==================\n$CMD\n"
+
+eval $CMD

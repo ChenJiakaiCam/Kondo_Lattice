@@ -1,0 +1,71 @@
+system:
+  lattice_vectors:            # 3x3 primitive cell vectors (Bohr)
+  # Following approach in two_atom_chain.py, where the lattice is made effectively 1D by using very large lattice constants in y and z directions.
+    - [26.46, 0.0, 0.0]
+    - [0.0, 100.0, 0.0]
+    - [0.0, 0.0, 100.0] 
+  atoms:
+    - symbol: Sc
+      coords: [0.0, 0.0, 0.0]
+      charge: 11.0
+    - symbol: H
+      coords: [3.78, 0.0, 0.0]
+      charge: 1.0
+    - symbol: Sc
+      coords: [11.34, 0.0, 0.0]
+      charge: 11.0
+    - symbol: H
+      coords: [15.12, 0.0, 0.0]
+      charge: 1.0
+    - symbol: Sc
+      coords: [18.90, 0.0, 0.0]
+      charge: 11.0
+    - symbol: H
+      coords: [22.68, 0.0, 0.0]
+      charge: 1.0
+    
+  # n_c = 0.333
+  # From /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/app/solid/data.py 
+  # and /rds/user/jc2405/hpc-work/JaQMC/jaqmc/src/jaqmc/utils/atomic/initialization.py, the logic when we initialize a neutral cell
+  # is we'll start with [6,5] for all Sc and [1,0] for all H. Then to get say [6,6] total for one cell we'll randomly choose 
+  # one spin to flip. So we try the same logic for this charged cell, manually simulating the random spin flip starting from [6,5] for all Sc and [1,0] for all H. 
+  # For removing electrons I guess removing from the larger Sc orbitals makes more sense
+  electron_spins: [17, 17]     # 34 electrons total (36 core charges - 34 e = +2 charge)
+  fixed_spins_per_atom:
+    - [5, 5]  
+    - [1, 0]  
+    - [5, 5]  
+    - [0, 1]  
+    - [5, 6]  
+    - [1, 0]  
+  basis: 
+    Sc: ccecpccpvdz
+    H: cc-pvdz
+  ecp:
+    Sc: ccecp
+  scf_max_cycle: 1            # <--- So KRHF only runs for one cycle
+  # supercell_matrix: 
+  #   [[3, 0, 0], [0, 1, 0], [0, 0, 1]] # Following approach in two_atom_chain.py
+
+# estimators:
+#   enabled:
+#     rdm: true
+  
+  # rdm:
+  #   n_sweeps: 5
+  #   aux_steps: 10       
+  #   batch_size: 2048 #This doesn't sets it, just tells the estimator the batch size to determine the size of the r' pool to generate
+  #   rdm_orbitals: 
+  #     - '0 Sc 4s'
+  #     - '0 Sc 3dxy'
+  #     - '0 Sc 3dyz'
+  #     - '0 Sc 3dz\^2'
+  #     - '0 Sc 3dxz'
+  #     - '0 Sc 3dx2-y2'
+  #     - '1 H 1s' # Assume conduction band formed by hybridization of Sc 4s and H 1s orbitals only
+      
+
+# train:
+#   writers:
+#     console: null
+#     csv: null

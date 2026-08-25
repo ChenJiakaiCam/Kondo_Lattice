@@ -3,49 +3,41 @@
 #! Example SLURM job script for Wilkes3 (AMD EPYC 7763, ConnectX-6, A100)
 #!
 
-#!#############################################################
-#!#### Modify the options in this section as appropriate ######
-#!#############################################################
-
 #! sbatch directives begin here ###############################
-#! Name of the job:
-#SBATCH -J h18_631g_train
-#! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
+#SBATCH -J sch_gaussian_init_eval_2nodes_batch
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
-#SBATCH --nodes=1
-#! How many (MPI) tasks will there be in total?
-#SBATCH --ntasks=1
+#SBATCH --nodes=2
+#! How many (MPI) tasks will there be in total? (1 task per node)
+#SBATCH --ntasks=2
+#SBATCH --ntasks-per-node=1
 #! Specify the number of GPUs per node
 #SBATCH --gres=gpu:4
 #! Specify the number of CPUs per task
 #SBATCH --cpus-per-task=128
 #! How much wallclock time will be required?
-#SBATCH --time=03:00:00
-#! What types of email messages do you wish to receive?
+#SBATCH --time=00:30:00
 #SBATCH --mail-type=ALL
+#SBATCH --signal=TERM@60
+
 #! Uncomment this to prevent the job from being requeued
 ##SBATCH --no-requeue
-#SBATCH --signal=TERM@60
+
+#! Submit a job array with index values between 0 and 5 (6 values total)
+#SBATCH --array=0-5
 
 #! Do not change:
 #SBATCH -p ampere
-
-#! sbatch directives end here (put any additional directives above this line)
+#! sbatch directives end here ###############################
 
 numnodes=$SLURM_JOB_NUM_NODES
 numtasks=$SLURM_NTASKS
 mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
-#! Work directory (i.e. where the job will run):
-workdir="$SLURM_SUBMIT_DIR"  # The value of SLURM_SUBMIT_DIR sets workdir to the directory
-                             # in which sbatch is run.
-
-#!#############################################################
+workdir="$PWD"
 
 . /etc/profile.d/modules.sh
 
 module purge
-# For GPU
 module load rhel8/default-amp
 module load gcc/11
 module load cuda/12.1
@@ -61,39 +53,25 @@ for libdir in "$VENV_LIB"/nvidia/*/lib; do
     export LD_LIBRARY_PATH="$libdir:$LD_LIBRARY_PATH"
 done
 # ==============================================================================
-
-
+PARAMS=(2.8 4.2 5.0 5.5 7.0 10.0)
+PARAM_VAL=${PARAMS[$SLURM_ARRAY_TASK_ID]}
 
 export OMP_NUM_THREADS=32
-# export JAX_LOG_COMPILES=1
-#Takes long time to even compile/start training, so we try to use persistent cache to speed up compilation once it's compiled once
-export JAX_COMPILATION_CACHE_DIR="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/jax_cache/h18_631g"
+export JAX_LOG_COMPILES=1
+export JAX_COMPILATION_CACHE_DIR="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/jax_cache/sc_h_gaussian_init_2nodes_${PARAM_VAL}"
 export JAX_PERSISTENT_CACHE_MIN_ENTRY_SIZE_BYTES=-1
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
-# CMD="jaqmc solid train \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_rdm.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_3.78_spin_6_6_rdm \
-#   pretrain.run.iterations=1000 train.run.iterations=10000"
 
-# CMD="jaqmc solid train \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_rdm.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_3.78_rdm_full_new"
 
-# CMD="jaqmc solid train \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_rdm.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_rdm_full_new"
+# ==============================================================================
+# --- MULTI-NODE COORDINATION SETUP ---
+# ==============================================================================
+# Get the hostname of the first node to act as the coordinator
+MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n1)
+MASTER_PORT=29500
 
-# CMD="jaqmc solid train \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18 \
-#   train.run.iterations=40000 "
-
-  CMD="jaqmc solid train \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18_631g.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18_631g \
-  train.run.iterations=40000"
 
 ###############################################################
 ### You should not have to change anything below this line ####
@@ -108,6 +86,7 @@ echo -e "JobID: $JOBID\n======"
 echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
+echo -e "Multi-node setup: Coordinator is $MASTER_ADDR:$MASTER_PORT"
 
 if [ "$SLURM_JOB_NODELIST" ]; then
         #! Create a machine file:
@@ -119,6 +98,24 @@ fi
 
 echo -e "\nnumtasks=$numtasks, numnodes=$numnodes, mpi_tasks_per_node=$mpi_tasks_per_node (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
 
-echo -e "\nExecuting command:\n==================\n$CMD\n"
+echo -e "\nExecuting srun command...\n"
 
-eval $CMD
+# Wrap the execution in bash -c.
+# Notice the double quotes around the whole command, but the \$ before SLURM_PROCID.
+# This allows MASTER_ADDR to be evaluated immediately, but forces the node's local bash to evaluate the PROCID.
+# Notice the addition of 'export CUDA_VISIBLE_DEVICES=0,1,2,3;' and the 'unset' command
+srun --ntasks-per-node=1 --gpus-per-task=4 bash -c " \
+  PROCID=\$SLURM_PROCID; \
+  unset SLURM_LOCALID SLURM_PROCID SLURM_NTASKS SLURM_NODEID; \
+  export CUDA_VISIBLE_DEVICES=0,1,2,3; \
+  unset SOCKS_PROXY_PORT SOCKS_PROXY_NETWORK SOCKS_PROXY_SERVER; \
+  exec jaqmc solid evaluate \
+  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_${PARAM_VAL}_rdm_gaussian_init.yml \
+  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_${PARAM_VAL}_rdm_eval_gaussian_init \
+  workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_${PARAM_VAL}_spin_6_6 \
+  run.iterations=500 \
+  run.save_step_interval=100 \
+  workflow.config.ignore_extra=True \
+  distributed.coordinator_address=${MASTER_ADDR}:${MASTER_PORT} \
+  distributed.num_processes=${SLURM_NTASKS} \
+  distributed.process_id=\$PROCID"

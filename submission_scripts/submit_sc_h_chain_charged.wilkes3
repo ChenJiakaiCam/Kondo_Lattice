@@ -9,7 +9,7 @@
 
 #! sbatch directives begin here ###############################
 #! Name of the job:
-#SBATCH -J h18_631g_new_f
+#SBATCH -J sch_charged_64
 #! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
 #SBATCH -A SCHEMM-SL3-GPU
 #! How many whole nodes should be allocated?
@@ -21,7 +21,7 @@
 #! Specify the number of CPUs per task
 #SBATCH --cpus-per-task=128
 #! How much wallclock time will be required?
-#SBATCH --time=00:30:00
+#SBATCH --time=01:30:00
 #! What types of email messages do you wish to receive?
 #SBATCH --mail-type=ALL
 #! Uncomment this to prevent the job from being requeued
@@ -63,61 +63,24 @@ done
 # ==============================================================================
 
 
+# export XLA_FLAGS="--xla_gpu_unsafe_fallback_to_driver_on_ptxas_not_found=true"
+
+
 export OMP_NUM_THREADS=32
+
+export JAX_LOG_COMPILES=1
+
+#Takes long time to even compile/start training, so we try to use persistent cache to speed up compilation once it's compiled once
+export JAX_COMPILATION_CACHE_DIR="/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/jax_cache/sc_h_charged"
+export JAX_PERSISTENT_CACHE_MIN_ENTRY_SIZE_BYTES=-1
 
 np=$[${numnodes}*${mpi_tasks_per_node}]
 
-# CMD="jaqmc solid evaluate --yml ./configs/h_chain_rdm.yml \
-# workflow.save_path=./runs/h_chain_2.8_rdm_full_new_eval \
-# workflow.source_path=./runs/h_chain_2.8_rdm_full_new \
-# workflow.config.ignore_extra=True"
+CMD="jaqmc solid train \
+  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/sc_h_chain_rdm_charged.yml \
+  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/sc_h_chain_3.76_3_nc_0.33 \
+  pretrain.run.iterations=1000 train.run.iterations=10000 train.run.save_step_interval=50"
 
-# CMD="jaqmc solid evaluate --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18.yml \
-# workflow.save_path=./runs/h_chain_18_rdm_eval \
-# workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18 \
-# workflow.config.ignore_extra=True"
-
-# CMD=" jaqmc solid evaluate \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18.yml \
-#   workflow.save_path=./runs/h_chain_18_rdm_eval_all \
-#   workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18 \
-#   workflow.config.ignore_extra=True \
-#   run.iterations=11000 \
-#   run.save_step_interval=500 \
-#   run.digest_step_interval=500 \
-#   "
-
-# CMD=" jaqmc solid evaluate \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_18_rdm_eval_all_gaussian_init_new \
-#   workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18 \
-#   workflow.config.ignore_extra=True \
-#   run.iterations=10000 \
-#   run.save_step_interval=500 \
-#   run.digest_step_interval=500 \
-#   "
-
-
-#Try evaluating with a different basis from training
-# CMD=" jaqmc solid evaluate \
-#   --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18_631g.yml \
-#   workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18_631g_eval\
-#   workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18_631g \
-#   workflow.config.ignore_extra=True \
-#   run.iterations=8000 \
-#   run.save_step_interval=500 \
-#   "
-
-CMD=" jaqmc solid evaluate \
-  --yml /rds/user/jc2405/hpc-work/JaQMC/jaqmc/configs/h_chain_18_631g.yml \
-  workflow.save_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18_631g_newf_eval\
-  workflow.source_path=/rds/user/jc2405/hpc-work/JaQMC/jaqmc/runs/h_chain_2.8_18_631g \
-  workflow.config.ignore_extra=True \
-  run.iterations=4000 \
-  run.save_step_interval=500 \
-  "
-
-  
 ###############################################################
 ### You should not have to change anything below this line ####
 ###############################################################
