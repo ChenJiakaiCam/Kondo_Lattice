@@ -29,7 +29,7 @@ from jaqmc.geometry.pbc import make_pbc_gaussian_proposal, wrap_positions
 from jaqmc.utils.atomic import initialize_electrons_gaussian
 
 @configurable_dataclass
-class OneAndTwoRDM_GaussianInit(Estimator):
+class OneAndTwoRDM(Estimator):
     r"""One- and Two-body reduced density matrix.
 
     Computes the 1-RDM and 2-RDM using meta-Lowdin localized orbitals.
@@ -58,7 +58,6 @@ class OneAndTwoRDM_GaussianInit(Estimator):
     def init(self, data: SolidData, rngs: PRNGKey) -> dict[str, Any]:
         """ 
         Initialize the auxiliary electron coordinates for 1-RDM and 2-RDM sampling.
-    
         """
         
         # From Estimator.init(), this function is called only once per device, and results shared across all walkers.
@@ -66,6 +65,9 @@ class OneAndTwoRDM_GaussianInit(Estimator):
         
         #cell has basis, spin, charge, ecp, 
         prim_cell = self.scf._cell # pyscf_cell: pyscf.pbc.gto.Cell, equivalent to self._mol in Ferminet rdm.py
+        
+        print("Resolved PySCF basis:", self.scf._cell.basis)
+        print("Internal basis:", self.scf._cell._basis)
         
         # 1. Build the supercell if the matrix was provided in the YAML
         # Looks like in data_init for SolidData, R is sampled around the supercell, so here we also need to work in supercell 
@@ -86,6 +88,36 @@ class OneAndTwoRDM_GaussianInit(Estimator):
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
         self._full_mo_coeff = jnp.array(lo.orth_ao(supcell, 'meta-lowdin'))
+        
+        # ================ Orthogonality check
+        
+        C = jnp.asarray(self._full_mo_coeff)
+
+        S_gamma = jnp.asarray(
+            supcell.pbc_intor(
+                "int1e_ovlp",
+                hermi=1,
+                kpts=jnp.zeros(3),
+            )
+        )
+        if S_gamma.ndim == 3:
+            S_gamma = S_gamma[0]
+
+        overlap_mo = C.conj().T @ S_gamma @ C
+
+        print("supcell.nelec =", supcell.nelec)
+        print("number of walker electrons =", data.electrons.shape[-2])
+        print(
+            "max |C† SΓ C - I| =",
+            jnp.max(jnp.abs(overlap_mo - jnp.eye(C.shape[1]))),
+        )
+        print(
+            "diagonal range =",
+            overlap_mo.diagonal().real.min(),
+            overlap_mo.diagonal().real.max(),
+        )
+        
+        # =================================================================
         
         # If specific orbitals are provided, slice the target MO coefficients
         if self.rdm_orbitals is not None:
@@ -127,7 +159,7 @@ class OneAndTwoRDM_GaussianInit(Estimator):
             # initial_width and adapt_frequency from rdm_base_config.py
             # doesn't input f_sum here yet, the sampling_proposal is just telling how to propose new r' positions 
             steps=self.aux_steps, # aux_steps = 10, same as used in make_mcmc_obdm_step in Ferminet rdm.py
-            initial_width=0.5,          
+            initial_width=0.5,     #Same as in Ferminet rdm.py      
             adapt_frequency=10,
             sampling_proposal=make_pbc_gaussian_proposal(self._lattice_vectors) #By default electrons will wonder off the unit cell, but we only want to sample within the cell    
         )
