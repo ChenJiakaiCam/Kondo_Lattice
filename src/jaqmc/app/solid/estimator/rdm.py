@@ -119,12 +119,11 @@ class OneAndTwoRDM(Estimator):
         
         #----------------------------------
         
-        
-        # Existing code
+
         self._lattice_vectors = jnp.array(supcell.lattice_vectors())
         
-        # Add this immediately after:
-        self._inv_lattice_vectors = jnp.linalg.inv(self._lattice_vectors)
+
+        # self._inv_lattice_vectors = jnp.linalg.inv(self._lattice_vectors)
             
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
@@ -173,10 +172,111 @@ class OneAndTwoRDM(Estimator):
         else:
             self._mo_coeff = self._full_mo_coeff
             
+            
+        # Construct self._ao_evaluator such that it's hardcoded to evaluates all 3x3x3 surrounding supercells images
 
-        # In the H-chain paper it's using next-nearest-neighbour cutoff. I think here it's different by using PBCAtomicOrbitalEvaluator's estimate_rcut
-        self._ao_evaluator = PBCAtomicOrbitalEvaluator.from_pyscf(supcell) #Later use with _mo_coeff to get localized meta-Lowdin orbitals
-        # self._kpts = jnp.asarray(self.scf.get_orbital_kpoints())
+        # Integer translations:
+        # (nx, ny, nz) with each index in {-1, 0, 1}.
+        image_indices = np.asarray(
+            list(
+                itertools.product(
+                    [-1, 0, 1],
+                    repeat=3,
+                )
+            ),
+            dtype=np.int32,
+        )
+
+        lattice_vectors = np.asarray(
+            supcell.lattice_vectors()
+        )
+
+        # Cartesian translation vectors in Bohr.
+        fixed_image_vectors = (
+            image_indices @ lattice_vectors
+        )
+
+        original_get_lattice_Ls = (
+            supcell.get_lattice_Ls
+        )
+
+        def force_3x3x3_images(*args, **kwargs):
+            """
+            Return exactly the central supercell and its 26 nearest
+            neighbouring supercells, ignoring rcut and discard.
+            """
+            return fixed_image_vectors
+
+        try:
+            supcell.get_lattice_Ls = force_3x3x3_images
+
+            self._ao_evaluator = (
+                PBCAtomicOrbitalEvaluator.from_pyscf(
+                    supcell
+                )
+            )
+
+        finally:
+            # Restore normal PySCF behaviour
+            supcell.get_lattice_Ls = (
+                original_get_lattice_Ls
+            )
+            
+    # ------- Done setting up self._ao_evaluator, now validate for testing ----------------
+    
+        Ls_actual = np.asarray(
+            jax.device_get(
+                self._ao_evaluator.image_translation_vectors
+            )
+        )
+
+        actual_indices = np.rint(
+            Ls_actual @ np.linalg.inv(lattice_vectors)
+        ).astype(np.int32)
+
+        logging.info(
+            "Number of AO image vectors: %d",
+            Ls_actual.shape[0],
+        )
+
+        logging.info(
+            "AO image integer indices:\n%s",
+            actual_indices,
+        )
+
+        logging.info(
+            "Actual evaluator Lx: %s",
+            np.unique(np.round(Ls_actual[:, 0], 8)),
+        )
+
+        logging.info(
+            "Actual evaluator Ly: %s",
+            np.unique(np.round(Ls_actual[:, 1], 8)),
+        )
+
+        logging.info(
+            "Actual evaluator Lz: %s",
+            np.unique(np.round(Ls_actual[:, 2], 8)),
+        )
+
+        if Ls_actual.shape != (27, 3):
+            raise ValueError(
+                "Expected exactly 27 AO image vectors, "
+                f"but obtained shape {Ls_actual.shape}."
+            )
+
+        if not np.array_equal(
+            np.unique(actual_indices, axis=0),
+            np.unique(image_indices, axis=0),
+        ):
+            raise ValueError(
+                "The evaluator's image indices do not match "
+                "the requested 3x3x3 box."
+            )
+
+     # Done testing for self._ao_evaluator  ---------------------------------------------
+
+
         # This is used to evaluate MOs later after meta-Lowdin orthogonalization. I think pySCF meta-Lowdin orthogonalizes using the same orbitals on each lattice point (k = 0), so when you evaluate you need to set k = 0 when evaluating nearby orbitals too? 
         self._kpts = jnp.zeros((1, 3))
         
@@ -184,17 +284,8 @@ class OneAndTwoRDM(Estimator):
         self.n_down = supcell.nelec[1]
         
         
-        # Test PySCF Ls --------------
-        Ls_actual = np.asarray(
-            self._ao_evaluator.image_translation_vectors
-        )
-
-        logging.info(f"Actual evaluator Ly: {np.unique(np.round(Ls_actual[:, 1], 8))}")
-        logging.info(f"Actual evaluator Lz: {np.unique(np.round(Ls_actual[:, 2], 8))}")
-
-        # ---------------------
         
-        key_init, key_burn = jax.random.split(rngs)
+        key_init, key_sampler = jax.random.split(rngs)
         
         # Using self.n_sweeps directly (or data.r.shape[0] * self.n_sweeps if tracking per-walker)
         # If self.batch_size is 2048, ratio is 2.0, and GPUs are 4:
@@ -214,7 +305,7 @@ class OneAndTwoRDM(Estimator):
         )
         
         # Get the initial state for the adaptive MCMC
-        sampler_state = self._aux_sampler.init(r_prime_pool, rngs)
+        sampler_state = self._aux_sampler.init(r_prime_pool, key_sampler)
 
         
         return {
@@ -264,32 +355,32 @@ class OneAndTwoRDM(Estimator):
         
         return r_prime_pool
     
-    def _coords_for_ao(self, positions: jnp.ndarray) -> jnp.ndarray:
-        """
-        Map transverse coordinates from [0, L) to [-L/2, L/2)
-        before evaluating Gamma-point orbitals centred at y=z=0.
-        """
-        frac = positions @ self._inv_lattice_vectors
+    # def _coords_for_ao(self, positions: jnp.ndarray) -> jnp.ndarray:
+    #     """
+    #     Map transverse coordinates from [0, L) to [-L/2, L/2)
+    #     before evaluating Gamma-point orbitals centred at y=z=0.
+    #     """
+    #     frac = positions @ self._inv_lattice_vectors
 
-        # Keep x untouched (the chain direction).
-        # Center y and z into [-0.5, 0.5) instead of [0.0, 1.0)
-        transverse = (frac[..., 1:] + 0.5) % 1.0 - 0.5
-        frac = frac.at[..., 1:].set(transverse)
+    #     # Keep x untouched (the chain direction).
+    #     # Center y and z into [-0.5, 0.5) instead of [0.0, 1.0)
+    #     transverse = (frac[..., 1:] + 0.5) % 1.0 - 0.5
+    #     frac = frac.at[..., 1:].set(transverse)
 
-        return frac @ self._lattice_vectors
+    #     return frac @ self._lattice_vectors
 
 
     def _evaluate_mo(self, positions: jnp.ndarray) -> jnp.ndarray:
         """Evaluate localized MOs at positions."""
         # Shift coordinates before giving them to PySCF
-        positions = self._coords_for_ao(positions)
+        # positions = self._coords_for_ao(positions)
         aos = self._ao_evaluator(positions, self._kpts)
         return jnp.dot(aos[0], self._mo_coeff)
 
     def _fsum(self, positions: jnp.ndarray) -> jnp.ndarray:
         """Evaluate f(r') = sum_i |phi_i(r')|^2 using ALL orbitals in the supercell."""
         # Shift coordinates before giving them to PySCF
-        positions = self._coords_for_ao(positions)
+        # positions = self._coords_for_ao(positions)
         aos = self._ao_evaluator(positions, self._kpts)
         all_mo = jnp.dot(aos[0], self._full_mo_coeff)
         return jnp.sum(jnp.abs(all_mo)**2, axis=-1)
