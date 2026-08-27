@@ -7,12 +7,15 @@ and MCMC importance sampling of the auxiliary coordinate $r'$.
 from collections.abc import Mapping
 from typing import Any
 import logging
+import itertools
 
 import jax
 from jax import numpy as jnp
+import numpy as np #For test printing
 
 from pyscf import lo
 from pyscf.pbc.tools.pbc import super_cell
+import pyscf.pbc.gto #For test printing
 
 from jaqmc.array_types import Params, PRNGKey
 from jaqmc.app.solid.data import SolidData
@@ -41,7 +44,6 @@ class OneAndTwoRDM(Estimator):
     phase_logpsi: WavefunctionEvaluate = runtime_dep()
     scf: PeriodicSCF = runtime_dep() 
     data_field: str = runtime_dep(default="electrons")
-    
     system_config: "SolidConfig" = runtime_dep()
     
     # one-body sampling MCMC settings 
@@ -66,9 +68,9 @@ class OneAndTwoRDM(Estimator):
         #cell has basis, spin, charge, ecp, 
         prim_cell = self.scf._cell # pyscf_cell: pyscf.pbc.gto.Cell, equivalent to self._mol in Ferminet rdm.py
         
-        print("Resolved PySCF basis:", self.scf._cell.basis)
-        print("Internal basis:", self.scf._cell._basis)
-        
+        logging.info(f"Resolved PySCF basis: {self.scf._cell.basis}")
+        logging.info(f"Internal basis: {self.scf._cell._basis}")
+
         # 1. Build the supercell if the matrix was provided in the YAML
         # Looks like in data_init for SolidData, R is sampled around the supercell, so here we also need to work in supercell 
         if self.system_config.supercell_matrix is not None:
@@ -83,7 +85,46 @@ class OneAndTwoRDM(Estimator):
         #For Sc-H chain this looks like '0 Sc 3s    ', '0 Sc 3dxy  ', '0 Sc 3dyz  ', '0 Sc 3dz^2 ', '0 Sc 3dxz  ', '0 Sc 3dx2-y2', '1 H 1s    ', etc (length 40+!)
         # For H chain with 2 H per unit cell it looks like  ['0 H 1s    ', '0 H 2s    ', '0 H 2px   ', '0 H 2py   ', '0 H 2pz   ', '1 H 1s    ', '1 H 2s    ', '1 H 2px   ', '1 H 2py   ', '1 H 2pz   ']
         
+        # Test PySCF rcuts ---------------------
+        
+        rcut = float(pyscf.pbc.gto.estimate_rcut(supcell))
+
+        Ls_discarded = np.asarray(
+            supcell.get_lattice_Ls(
+                rcut=rcut,
+                discard=True,
+            )
+        )
+
+        Ls_complete = np.asarray(
+            supcell.get_lattice_Ls(
+                rcut=rcut,
+                discard=False,
+            )
+        )
+
+        logging.info(f"estimated rcut: {rcut}")
+
+        logging.info("\nWith discard=True:")
+        logging.info(f"Lx: {np.unique(np.round(Ls_discarded[:, 0], 8))}")
+        logging.info(f"Ly: {np.unique(np.round(Ls_discarded[:, 1], 8))}")
+        logging.info(f"Lz: {np.unique(np.round(Ls_discarded[:, 2], 8))}")
+
+        logging.info("\nWith discard=False:")
+        logging.info(f"Lx: {np.unique(np.round(Ls_complete[:, 0], 8))}")
+        logging.info(f"Ly: {np.unique(np.round(Ls_complete[:, 1], 8))}")
+        logging.info(f"Lz: {np.unique(np.round(Ls_complete[:, 2], 8))}")
+                
+                
+        
+        #----------------------------------
+        
+        
+        # Existing code
         self._lattice_vectors = jnp.array(supcell.lattice_vectors())
+        
+        # Add this immediately after:
+        self._inv_lattice_vectors = jnp.linalg.inv(self._lattice_vectors)
             
         
         logging.info("Calculating Meta-Lowdin MO coefficients")
@@ -105,16 +146,13 @@ class OneAndTwoRDM(Estimator):
 
         overlap_mo = C.conj().T @ S_gamma @ C
 
-        print("supcell.nelec =", supcell.nelec)
-        print("number of walker electrons =", data.electrons.shape[-2])
-        print(
-            "max |C† SΓ C - I| =",
-            jnp.max(jnp.abs(overlap_mo - jnp.eye(C.shape[1]))),
+        logging.info(f"supcell.nelec = {supcell.nelec}")
+        logging.info(f"number of walker electrons = {data.electrons.shape[-2]}")
+        logging.info(
+            f"max |C† SΓ C - I| = {jnp.max(jnp.abs(overlap_mo - jnp.eye(C.shape[1])))}"
         )
-        print(
-            "diagonal range =",
-            overlap_mo.diagonal().real.min(),
-            overlap_mo.diagonal().real.max(),
+        logging.info(
+            f"diagonal range = {overlap_mo.diagonal().real.min()} to {overlap_mo.diagonal().real.max()}"
         )
         
         # =================================================================
@@ -144,6 +182,17 @@ class OneAndTwoRDM(Estimator):
         
         self.n_up = supcell.nelec[0] 
         self.n_down = supcell.nelec[1]
+        
+        
+        # Test PySCF Ls --------------
+        Ls_actual = np.asarray(
+            self._ao_evaluator.image_translation_vectors
+        )
+
+        logging.info(f"Actual evaluator Ly: {np.unique(np.round(Ls_actual[:, 1], 8))}")
+        logging.info(f"Actual evaluator Lz: {np.unique(np.round(Ls_actual[:, 2], 8))}")
+
+        # ---------------------
         
         key_init, key_burn = jax.random.split(rngs)
         
@@ -214,15 +263,33 @@ class OneAndTwoRDM(Estimator):
         r_prime_pool = wrap_positions(r_prime_pool, self._lattice_vectors)
         
         return r_prime_pool
+    
+    def _coords_for_ao(self, positions: jnp.ndarray) -> jnp.ndarray:
+        """
+        Map transverse coordinates from [0, L) to [-L/2, L/2)
+        before evaluating Gamma-point orbitals centred at y=z=0.
+        """
+        frac = positions @ self._inv_lattice_vectors
 
-    #should still work even with PBC AOs?
+        # Keep x untouched (the chain direction).
+        # Center y and z into [-0.5, 0.5) instead of [0.0, 1.0)
+        transverse = (frac[..., 1:] + 0.5) % 1.0 - 0.5
+        frac = frac.at[..., 1:].set(transverse)
+
+        return frac @ self._lattice_vectors
+
+
     def _evaluate_mo(self, positions: jnp.ndarray) -> jnp.ndarray:
         """Evaluate localized MOs at positions."""
+        # Shift coordinates before giving them to PySCF
+        positions = self._coords_for_ao(positions)
         aos = self._ao_evaluator(positions, self._kpts)
-        return jnp.dot(aos[0], self._mo_coeff) #aos[0] cuz all the k-points are 0 so just take first one
+        return jnp.dot(aos[0], self._mo_coeff)
 
     def _fsum(self, positions: jnp.ndarray) -> jnp.ndarray:
         """Evaluate f(r') = sum_i |phi_i(r')|^2 using ALL orbitals in the supercell."""
+        # Shift coordinates before giving them to PySCF
+        positions = self._coords_for_ao(positions)
         aos = self._ao_evaluator(positions, self._kpts)
         all_mo = jnp.dot(aos[0], self._full_mo_coeff)
         return jnp.sum(jnp.abs(all_mo)**2, axis=-1)
