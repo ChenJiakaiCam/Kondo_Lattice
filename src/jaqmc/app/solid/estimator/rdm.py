@@ -54,6 +54,10 @@ class OneAndTwoRDM(Estimator):
     # Batching parameters needed for the auxiliary pool
     batch_size: int = 2048          # Default JaQMC run config
     ratio_naux_nbatch: float = 2.0  # From original config
+    
+    # Maximum number of local walkers evaluated simultaneously.
+    # None means use the original full-batch vmap. This is so that larger systems won't OOM. 
+    target_local_batch: int | None = None
     rdm_orbitals: list[str] | None = None
     
 
@@ -642,12 +646,82 @@ class OneAndTwoRDM(Estimator):
         # =======================================================
         # 4. VMAP THE MATH ACROSS ALL WALKERS
         # =======================================================
-        logging.info("Starting batch calculations of RDMs")
-        walker_stats = jax.vmap(single_walker_math, in_axes=(batched_data.vmap_axis, 0, 0))(
-            batched_data.data, 
-            r_prime_per_walker_1rdm,
-            r_prime_per_walker_2rdm
+        
+        if self.target_local_batch is not None and self.target_local_batch <= 0:
+            raise ValueError(
+                "target_local_batch must be a positive integer or None, "
+                f"but got {self.target_local_batch}."
+            )
+        
+        # Use the original full vmap when no chunking is requested, or when the
+        # requested chunk is at least as large as the actual local walker batch.
+        local_walker_batch = batched_data.batch_size
+        use_full_vmap = (
+            self.target_local_batch is None
+            or self.target_local_batch >= local_walker_batch
         )
+        
+        if use_full_vmap:
+            logging.info(
+            "RDM walker evaluation: using full vmap over %d local walkers",
+                local_walker_batch,
+            )
+
+            walker_stats = jax.vmap(
+            single_walker_math,
+                in_axes=(
+                    batched_data.vmap_axis,
+                    0,
+                    0,
+                ),
+            )(
+                batched_data.data,
+                r_prime_per_walker_1rdm,
+                r_prime_per_walker_2rdm,
+            )
+            
+        else: #Process the full local batch in smaller chunks to reduce memory usage. This is useful for large systems (e.g. Sc with 19Hs in a supercell) where the full vmap may exceed available memory.
+            walker_chunk_size = self.target_local_batch
+
+            logging.info(
+            "RDM walker evaluation: processing %d local walkers in chunks of %d",
+                local_walker_batch,
+                walker_chunk_size,
+            )
+
+            shared_data = batched_data.data
+
+            def mapped_single_walker_math(inputs):
+                electrons, r_prime_1rdm, r_prime_2rdm = inputs
+
+                walker_data = shared_data.merge(
+                    {
+                        self.data_field: electrons,
+                    }
+                )
+
+                return single_walker_math(
+                    walker_data,
+                    r_prime_1rdm,
+                    r_prime_2rdm,
+                )
+
+            walker_stats = jax.lax.map(
+                mapped_single_walker_math,
+                (
+                    batched_data.data[self.data_field],
+                    r_prime_per_walker_1rdm,
+                    r_prime_per_walker_2rdm,
+                ),
+                batch_size=walker_chunk_size,
+            )
+
+        # logging.info("Starting batch calculations of RDMs")
+        # walker_stats = jax.vmap(single_walker_math, in_axes=(batched_data.vmap_axis, 0, 0))(
+        #     batched_data.data, 
+        #     r_prime_per_walker_1rdm,
+        #     r_prime_per_walker_2rdm
+        # )
         logging.info("Completed batch calculations of RDMs")
         
         new_state = {
