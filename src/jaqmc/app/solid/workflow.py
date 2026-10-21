@@ -35,6 +35,8 @@ from .data import data_init
 from .hamiltonian import PotentialEnergy
 from .wavefunction import SolidWavefunction
 from .estimator import OneAndTwoRDM
+from .estimator import OneAndTwoRDM_Small
+from .estimator import OneAndTwoRDM_Kondo
 from .estimator import OneAndTwoRDM_GaussianInit
 
 from .estimator import MomentumDistribution
@@ -253,12 +255,25 @@ def make_estimators(
         estimators["rdm"] = rdm
         
     if cfg.get("estimators.enabled.rdm_gaussian_init", False):
-            # supercell_lattice = jnp.asarray(system_config.supercell_lattice)
             rdm_gaussian_init = cfg.get(
                 "estimators.rdm_gaussian_init",
                 OneAndTwoRDM_GaussianInit(phase_logpsi=wf.phase_logpsi, scf=scf, system_config=system_config),
             )
             estimators["rdm_gaussian_init"] = rdm_gaussian_init
+            
+    if cfg.get("estimators.enabled.rdm_small", False):
+            rdm_small = cfg.get(
+                "estimators.rdm_small",
+                OneAndTwoRDM_Small(phase_logpsi=wf.phase_logpsi, scf=scf, system_config=system_config),
+            )
+            estimators["rdm_small"] = rdm_small
+            
+    if cfg.get("estimators.enabled.rdm_kondo", False):
+            rdm_kondo = cfg.get(
+                "estimators.rdm_kondo",
+                OneAndTwoRDM_Kondo(phase_logpsi=wf.phase_logpsi, scf=scf, system_config=system_config),
+            )
+            estimators["rdm_kondo"] = rdm_kondo
         
     if cfg.get("estimators.enabled.momentum_distribution", False):
             momentum_distribution = cfg.get(
